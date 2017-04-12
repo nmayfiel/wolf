@@ -62,7 +62,7 @@ int main(int argc, char **argv)
      if (argc == 1)
      {
 	  setup_window(&win);
-//	  win.initialized = 1;
+	  win.initialized = 1;
 	  print_welcome_msg(argv[0]);
 	  mlx_hook(win.win, 2, 0, remove_key, &win.keys);
 	  mlx_hook(win.win, 3, 0, add_key, &win.keys);

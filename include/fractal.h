@@ -35,6 +35,12 @@
 # define EMSG_MALLOC "Allocation error"
 
 
+typedef struct s_f2
+{
+     float x;
+     float y;
+} t_f2;
+
 typedef struct		s_point
 {
 	int32_t	x;

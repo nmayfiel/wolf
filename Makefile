@@ -23,7 +23,7 @@ build:
 	mkdir build/
 
 clean:
-	/bin/rm -f $(OBJECTS)
+	/bin/rm -rf build/
 
 fclean: clean
 	cd libft && make fclean

@@ -1,4 +1,4 @@
-NAME = fractal
+NAME = fractol
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = -Llibft/ -Lminilibx
@@ -11,9 +11,13 @@ OBJECTS = $(addprefix build/, $(FILENAMES:.c=.o))
 
 all: $(NAME)
 
-$(NAME): $(OBJECTS)
-	cd libft && make && make clean
+libft/libft.a:
+	cd libft && make
+
+minilibx/libmlx.a:
 	cd minilibx && make
+
+$(NAME): $(OBJECTS) minilibx/libmlx.a libft/libft.a
 	$(CC) $(LDFLAGS) $(LDLIBS) -o $(NAME) $(OBJECTS)
 
 build/%.o: src/%.c | build

@@ -53,7 +53,7 @@ typedef struct		s_point
 */
 typedef struct s_mods
 {
-     int a;
+     float scale;
 } t_mods;
 
 typedef struct		s_image

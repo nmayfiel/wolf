@@ -16,6 +16,8 @@
 #include <mlx.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+
 static t_image get_display_buffer(void *mlx, uint32_t width, uint32_t height)
 {
      t_image display;
@@ -44,7 +46,7 @@ static void setup_window(t_window *win)
      win->center.y = (WIN_HEIGHT / 2);
      win->keys = 0;
      win->initialized = 0;
-     //win->mods = (t_mods){0.0, 0.0, 0.0, 10.0, WIN_WIDTH / 2.0, WIN_HEIGHT / 2.0, 0.0};
+     win->mods = (t_mods){10.0};
 }
 
 static void print_welcome_msg(char *program_name)
@@ -52,8 +54,29 @@ static void print_welcome_msg(char *program_name)
      ft_putstr(program_name);
      ft_putendl(": A 42 Graphics Project - by nmayfiel");
      ft_putendl("Controls:");
+     ft_putendl("UP/DWN:\tScale");
      ft_putendl("ESC:\tQuit");
 }
+
+/*
+** 4 is zoom in, 5 is zoom out, for now
+*/
+int mouse_hook(int button, int x, int y, t_window *win)
+{
+     t_window *tmp;
+
+     tmp = win;
+     printf("%d %d %d\n", button, x, y);
+     
+     return (0);
+}
+
+/*
+** Rather than using key hook and mouse hook functions, I chose to use
+** the generic mlx_hook function for assigning all event hooks
+** You can find the values for event keys in minilibx/mlx_new_window.m
+** int mlx_hook(void *win_ptr, int event, int mask, int (*f)(), void *param);
+*/
 
 int main(int argc, char **argv)
 {
@@ -65,6 +88,7 @@ int main(int argc, char **argv)
 	  win.initialized = 1;
 	  print_welcome_msg(argv[0]);
 	  mlx_hook(win.win, 2, 0, remove_key, &win.keys);
+	  mlx_hook(win.win, 4, 0, mouse_hook, &win);
 	  mlx_hook(win.win, 3, 0, add_key, &win.keys);
 	  mlx_hook(win.win, 17, 0, close_hook, &win);
 	  mlx_loop_hook(win.mlx, main_loop, &win);

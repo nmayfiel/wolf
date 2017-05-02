@@ -25,9 +25,9 @@ int32_t close_hook(t_window *win)
 static int32_t handle_keys(t_keys keys, t_mods *mods)
 {
      if (keys & KVAL_UP)
-	  mods->scale += 0.1;
+	  mods->scale /= 1.1;
      if (keys & KVAL_DOWN)
-	  mods->scale -= 0.1;
+	  mods->scale *= 1.1;
      return (keys != 0);
 }
 
@@ -43,8 +43,9 @@ int32_t main_loop(t_window *win)
      if (win->initialized == 1 && win->time >= 2.0)
      {
 	  update = handle_keys(win->keys, &win->mods);
-	  if (!rendered_once || update)
+	  if (!rendered_once || update || win->mods.update)
 	       render(win);
+	  win->mods.update = 0;
 	  rendered_once = 1;
      }
      else

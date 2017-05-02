@@ -17,14 +17,14 @@
 # include "keys.h"
 
 # define WIN_NAME	"Fractal"
-# define USAGE "Usage: ./fractal"
+# define USAGE "Usage: ./fractol <type>"
 
 /*
 ** WINDOW
 */
 
-# define WIN_WIDTH		1024
-# define WIN_HEIGHT		768
+# define WIN_WIDTH		768
+# define WIN_HEIGHT		512
 # define CLEAR_COLOR 0x00000000
 
 /*
@@ -54,6 +54,9 @@ typedef struct		s_point
 typedef struct s_mods
 {
      float scale;
+     float xmouse;
+     float ymouse;
+     int32_t update;
 } t_mods;
 
 typedef struct		s_image

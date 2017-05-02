@@ -5,7 +5,7 @@ LDFLAGS = -Llibft/ -Lminilibx
 LDLIBS = -lft -lmlx -framework OpenGL -framework AppKit
 CFLAGS += -Iinclude/ -Ilibft/include/ -Iminilibx
 
-FILENAMES = main.c draw.c main_loop.c render.c splash.c keys.c
+FILENAMES = main.c draw.c loop.c render.c splash.c keys.c
 FNS = $(addprefix src/, $(FILENAMES))
 OBJECTS = $(addprefix build/, $(FILENAMES:.c=.o))
 

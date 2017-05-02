@@ -46,7 +46,7 @@ static void setup_window(t_window *win)
      win->center.y = (WIN_HEIGHT / 2);
      win->keys = 0;
      win->initialized = 0;
-     win->mods = (t_mods){10.0};
+     win->mods = (t_mods){10.0, -0.7, 0.27015, 0};
 }
 
 static void print_welcome_msg(char *program_name)
@@ -71,6 +71,15 @@ int mouse_hook(int button, int x, int y, t_window *win)
      return (0);
 }
 
+int32_t mouse_moved(int x, int y, t_window *win)
+{
+     // Normalize this to -1.0 <--> 1.0
+     win->mods.xmouse = (x - (win->disp.width / 2.0)) / win->disp.width;
+     win->mods.ymouse = (y - (win->disp.height / 2.0)) / win->disp.height;
+     win->mods.update = 1;
+     return (0);
+}
+
 /*
 ** Rather than using key hook and mouse hook functions, I chose to use
 ** the generic mlx_hook function for assigning all event hooks
@@ -88,7 +97,8 @@ int main(int argc, char **argv)
 	  win.initialized = 1;
 	  print_welcome_msg(argv[0]);
 	  mlx_hook(win.win, 2, 0, remove_key, &win.keys);
-	  mlx_hook(win.win, 4, 0, mouse_hook, &win);
+	  //mlx_hook(win.win, 4, 0, mouse_hook, &win);
+	  mlx_hook(win.win, 6, 0, mouse_moved, &win);
 	  mlx_hook(win.win, 3, 0, add_key, &win.keys);
 	  mlx_hook(win.win, 17, 0, close_hook, &win);
 	  mlx_loop_hook(win.mlx, main_loop, &win);

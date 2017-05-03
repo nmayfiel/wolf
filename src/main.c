@@ -47,7 +47,7 @@ static void setup_window(t_window *win)
      win->center.y = (WIN_HEIGHT / 2);
      win->keys = 0;
      win->initialized = 0;
-     win->mods = (t_mods){10.0, -0.7, 0.27015, 0};
+     win->mods = (t_mods){10.0, -0.7, 0.27015, 0, 0, 0};
 }
 
 static void print_welcome_msg(char *program_name)

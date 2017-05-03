@@ -53,10 +53,12 @@ typedef struct		s_point
 */
 typedef struct s_mods
 {
-     float scale;
-     float xmouse;
-     float ymouse;
+     double scale;
+     double xmouse;
+     double ymouse;
      int32_t update;
+     double xoffset;
+     double yoffset;
 } t_mods;
 
 typedef struct		s_image

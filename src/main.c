@@ -32,6 +32,7 @@ static t_image get_display_buffer(void *mlx, uint32_t width, uint32_t height)
      display.size_in_bytes = width * height;
      display.center.x = width / 2;
      display.center.y = height / 2;
+     display.aspect_ratio = (float)width / (float)height;
      return (display);
 }
 
@@ -73,9 +74,8 @@ int mouse_hook(int button, int x, int y, t_window *win)
 
 int32_t mouse_moved(int x, int y, t_window *win)
 {
-     // Normalize this to -1.0 <--> 1.0
-     win->mods.xmouse = (x - (win->disp.width / 2.0)) / win->disp.width;
-     win->mods.ymouse = (y - (win->disp.height / 2.0)) / win->disp.height;
+     win->mods.xmouse = (x - (float)win->disp.center.x) / win->disp.width;
+     win->mods.ymouse = (y - (float)win->disp.center.y) / win->disp.height;
      win->mods.update = 1;
      return (0);
 }

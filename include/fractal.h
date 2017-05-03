@@ -70,6 +70,7 @@ typedef struct		s_image
 	int32_t	height;
 	int32_t	width;
 	t_point	center;
+     float aspect_ratio;
 }					t_image;
 
 typedef struct		s_window

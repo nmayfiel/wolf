@@ -8,6 +8,8 @@
 int32_t close_hook(t_window *win)
 {
      mlx_destroy_window(win->mlx, win->win);
+     if (win->opts & OPT_GPU)
+	  release_cl_device(&win->cl);
      exit(0);
 }
 

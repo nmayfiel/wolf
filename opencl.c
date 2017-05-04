@@ -42,7 +42,7 @@ const char *burning_ship_source = "\n" \
 "       int i = 0;                                                      \n" \
 "       unsigned char r = 0;                                            \n" \
 "       unsigned char g = 255;                                          \n" \
-"       while (squaredx + squaredy <= 4.0f && i < 255){                 \n" \
+"       while (squaredx + squaredy <= 4.0f && i < 2048){                \n" \
 "           zy = zx * zy;                                               \n" \
 "           if(zy < 0.0f)                                               \n" \
 "               zy = -zy;                                               \n" \

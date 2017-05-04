@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/03/21 11:05:01 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/05/03 16:06:04 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,10 @@
 
 # include <libft.h>
 # include "keys.h"
+# include <OpenCL/opencl.h>
+
 
 # define WIN_NAME	"Fractal"
-# define USAGE "Usage: ./fractol <type>"
 
 /*
 ** WINDOW
@@ -25,15 +26,26 @@
 
 # define WIN_WIDTH		768
 # define WIN_HEIGHT		512
+# define DATA_SIZE (768 * 512)
 # define CLEAR_COLOR 0x00000000
 
 /*
 ** ERRORS
 */
 
+# define E_USAGE 1
+# define EMSG_USAGE ""
 # define E_MALLOC 3
 # define EMSG_MALLOC "Allocation error"
 
+/*
+** OPTIONS BITMASK
+*/
+
+# define OPT_JULIA 1
+# define OPT_MANDELBROT 1 << 1
+# define OPT_SHIP 1 << 2
+# define OPT_GPU 1 << 3
 
 typedef struct s_f2
 {
@@ -47,6 +59,20 @@ typedef struct		s_point
 	int32_t	y;
 }					t_point;
 
+/*
+** OpenCL Struct
+*/
+
+typedef struct s_cl_device
+{
+     cl_device_id device_id;
+     cl_context context;
+     cl_command_queue commands;
+     cl_program program;
+     cl_kernel kernel;
+     cl_mem output;
+     size_t local;
+} t_cl_device;
 
 /*
 ** Values modified by keys
@@ -86,6 +112,8 @@ typedef struct		s_window
 	t_keys		keys;
      t_mods mods;
 	int			initialized;
+     int32_t opts;
+     t_cl_device cl;
 }					t_window;
 
 t_image				get_splash(void *mlx);
@@ -96,5 +124,12 @@ void				render(t_window *win);
 
 int32_t					main_loop(t_window *win);
 int32_t close_hook(t_window *win);
+
+/*
+** OpenCL Helpers
+*/
+
+void create_cl_device(t_cl_device *cl);
+void release_cl_device(t_cl_device *cl);
 
 #endif

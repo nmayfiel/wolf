@@ -24,25 +24,7 @@ int32_t julia_frag(t_window *win, uint32_t x, uint32_t y)
      double squaredr;
      double squaredi;
 
-     iterations = 32;
-     /*coord_re = win->mods.xmouse * 2.0;
-     coord_im = win->mods.ymouse * 2.0;
-     i = 0;
-     zx = (x - win->disp.width / 2.0) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
-     zy = (y - win->disp.height / 2.0) * (win->mods.scale / win->disp.height);
-     squaredx = zx * zx;
-     squaredy = zy * zy;
-     while ((squaredx + squaredy) <= 4.0 && i < iterations)
-     {
-	  zx2 = zx;
-	  zy2 = zy;
-	  zx = zx2 * zx2 - zy2 * zy2 + coord_re;
-	  zy = (zx2 + zx2) * zy2 + coord_im;
-	  squaredx = zx * zx;
-	  squaredy = zy * zy;
-	  ++i;
-	  }*/
-
+     iterations = 64;
      coord_re = win->mods.xmouse * 2.0;
      coord_im = win->mods.ymouse * 2.0;
      i = 0;
@@ -61,9 +43,6 @@ int32_t julia_frag(t_window *win, uint32_t x, uint32_t y)
      return (color_arr[i % 4]);
 }
 
-/// TODO: Use the loop in mandelbrot frag in your julia,
-/// change the names of variables to match this one...
-
 int32_t mandelbrot_frag(t_window *win, uint32_t x, uint32_t y)
 {
      int32_t i;
@@ -75,7 +54,7 @@ int32_t mandelbrot_frag(t_window *win, uint32_t x, uint32_t y)
      float squaredr;
      float squaredi;
 
-     iterations = 255;
+     iterations = 64;
      coord_re = (x - win->disp.width / 2.0) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
      coord_im = (y - win->disp.height / 2.0) * (win->mods.scale / win->disp.height);
      i = 0;
@@ -100,32 +79,85 @@ int32_t burning_ship_frag(t_window *win, uint32_t x, uint32_t y)
      int32_t iterations;
      double coord_im;
      double coord_re;
-     double zx;
-     double zy;
-     double squaredx;
-     double squaredy;
+     double zr;
+     double zi;
+     double squaredr;
+     double squaredi;
 
-     iterations = 100;
-     coord_re = (x - win->disp.width / 2.0) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio) + win->mods.xoffset;
-     coord_im = (y - win->disp.height / 2.0) * (win->mods.scale / win->disp.height) + win->mods.yoffset;
+     iterations = 64;
+     double offsetx = (win->mods.xoffset - win->disp.width / 2.0) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
+     coord_re = offsetx + (x) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
+     coord_im = (y - win->disp.height / 2.0) * (win->mods.scale / win->disp.height);
+     //    printf("%f %f %f %f\n", coord_re, coord_im, win->mods.xoffset, win->mods.yoffset);
      i = 0;
-     zx = coord_re;
-     zy = coord_im;
-     squaredx = zx * zx;
-     squaredy = zy * zy;
-     while ((squaredx + squaredy) <= 4.0 && i < iterations)
+     zr = coord_re;
+     zi = coord_im;
+     squaredr = square(zr);
+     squaredi = square(zi);
+     while ((squaredr + squaredi) <= 4.0 && i < iterations)
      {
-	  zy = ABS(zx * zy);
-	  zy = zy + zy - coord_im;
-	  zx = squaredx - squaredy + coord_re;
-	  squaredx = zx * zx;
-	  squaredy = zy * zy;
+	  zi = ABS(zr * zi);
+	  zi = zi + zi - coord_im;
+	  zr = squaredr - squaredi + coord_re;
+	  squaredr = square(zr);
+	  squaredi = square(zi);
 	  ++i;
      }
      return (color_arr[i % 4]);
 }
 
-void render(t_window *win)
+void render_gpu(t_window *win)
+{
+     int32_t *buffer;
+     int result[DATA_SIZE];
+     size_t global;
+     uint32_t count;
+     int err;
+     
+     buffer = (int32_t *)win->disp.data;
+     count = DATA_SIZE;
+     err = 0;
+     int w = win->disp.width;
+     int h = win->disp.height;
+     double scale = win->mods.scale;
+     double aspect = win->disp.aspect_ratio;
+     double xmouse = win->mods.xmouse;
+     double ymouse = win->mods.ymouse;
+     err |= clSetKernelArg(win->cl.kernel, 0, sizeof(cl_mem), &win->cl.output);
+     err |= clSetKernelArg(win->cl.kernel, 1, sizeof(unsigned int), &count);
+     err |= clSetKernelArg(win->cl.kernel, 2, sizeof(int), &w);
+     err |= clSetKernelArg(win->cl.kernel, 3, sizeof(int), &h);
+     err |= clSetKernelArg(win->cl.kernel, 4, sizeof(double), &scale);
+     err |= clSetKernelArg(win->cl.kernel, 5, sizeof(double), &aspect);
+     err |= clSetKernelArg(win->cl.kernel, 6, sizeof(double), &xmouse);
+     err |= clSetKernelArg(win->cl.kernel, 7, sizeof(double), &ymouse);
+ 
+     if (err != CL_SUCCESS)
+	  exit(1);
+
+     global = count;
+     err = clEnqueueNDRangeKernel(win->cl.commands, win->cl.kernel, 1, NULL, &global, &win->cl.local, 0, NULL, NULL);
+     if (err)
+	  exit(1);
+
+     clFinish(win->cl.commands);
+     
+     err = clEnqueueReadBuffer(win->cl.commands, win->cl.output, CL_TRUE, 0, sizeof(int) * count, result, 0, NULL, NULL );  
+     if (err != CL_SUCCESS)
+     {
+	  printf("Error: Failed to read output array! %d\n", err);
+	  exit(1);
+     }
+     for (size_t b = 0; b < count; b++)
+     {
+	  buffer[b] = color_arr[result[b]];
+     }
+     mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
+			     win->center.x - win->disp.center.x,
+			     win->center.y - win->disp.center.y);
+}
+
+void render_normal(t_window *win)
 {
      int32_t *buffer;
      size_t k;
@@ -139,12 +171,23 @@ void render(t_window *win)
 	  // render different fractals
 	  x = (uint32_t)(k % win->disp.width);
 	  y = win->disp.height - (uint32_t)(k / win->disp.width);
-	  buffer[k] = burning_ship_frag(win, x, y);
-	  //buffer[k] = julia_frag(win, x, y);
-	  //buffer[k] = mandelbrot_frag(win, x, y);
+	  if (win->opts & OPT_SHIP)
+	       buffer[k] = burning_ship_frag(win, x, y);
+	  else if (win->opts & OPT_JULIA)
+	       buffer[k] = julia_frag(win, x, y);
+	  else if (win->opts & OPT_MANDELBROT)
+	       buffer[k] = mandelbrot_frag(win, x, y);
 	  ++k;
      }
      mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
 			     win->center.x - win->disp.center.x,
 			     win->center.y - win->disp.center.y);
+}
+
+void render (t_window *win)
+{
+     if (win->opts & OPT_GPU)
+	  render_gpu(win);
+     else
+	  render_normal(win);
 }

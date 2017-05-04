@@ -2,7 +2,7 @@ NAME = fractol
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = -Llibft/ -Lminilibx
-LDLIBS = -lft -lmlx -framework OpenGL -framework AppKit
+LDLIBS = -lft -lmlx -framework OpenGL -framework AppKit -framework OpenCL
 CFLAGS += -Iinclude/ -Ilibft/include/ -Iminilibx
 
 FILENAMES = main.c draw.c loop.c render.c splash.c keys.c

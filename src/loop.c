@@ -13,17 +13,6 @@ int32_t close_hook(t_window *win)
      exit(0);
 }
 
-/*
-** handle_keys
-** arguments: t_keys bit field, fields to modify
-** 
-** checks which key bits are flipped,
-** and adjusts the appropriate value
-**
-** return value: 1 or 0 depending on whether keys were
-** pressed or not
-*/
-
 static int32_t handle_keys(t_keys keys, t_mods *mods)
 {
      if (keys & KVAL_UP)

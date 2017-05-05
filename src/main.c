@@ -239,11 +239,7 @@ int32_t mouse_moved(int x, int y, t_window *win)
 
 char *usage_msg(void)
 {
-     return ("Usage: ./fractol <type> [options]\n" \
-	     "\ttype:\n" \
-	     "\t\tjulia\n"			\
-             "\t\tmandelbrot\n" \
-	     "\t\tship\n" \
+     return ("Usage: ./fractol julia|mandelbrot|ship [options]\n" \
 	     "\toptions:\n" \
              "\t\t-g, --gpu, use opencl implementation");
 }

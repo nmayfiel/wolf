@@ -19,6 +19,11 @@
 
 #include <stdio.h>
 
+// TODO: add iterations to mods, increase/decrease with keys
+// TODO: add a special case for julia zoom, click to zoom a specific point
+//     don't vary with the mouse movement like with the other sets because the
+//     set varies with mouse movement already
+
 const char *burning_ship_source = "\n" \
 "__kernel void burning_ship_kernel(                                     \n" \
 "   __global int *output,                                               \n" \

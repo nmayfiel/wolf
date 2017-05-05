@@ -27,17 +27,13 @@ int32_t close_hook(t_window *win)
 static int32_t handle_keys(t_keys keys, t_mods *mods)
 {
      if (keys & KVAL_UP)
-     {
-	  mods->scale /= 1.1;
-	  mods->xoffset = (double)mods->xmouse;
-	  mods->yoffset = -(double)mods->ymouse;
-     }
+	  mods->yoffset -= mods->scale * 11;
      if (keys & KVAL_DOWN)
-     {
-	  mods->scale *= 1.1;
-	  mods->xoffset = (double)mods->xmouse;
-	  mods->yoffset = -(double)mods->ymouse;
-     }
+	  mods->yoffset += mods->scale * 11;
+     if (keys & KVAL_LEFT)
+	  mods->xoffset += mods->scale * 11;
+     if (keys & KVAL_RIGHT)
+	  mods->xoffset -= mods->scale * 11;
      return (keys != 0);
 }
 

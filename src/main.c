@@ -193,7 +193,7 @@ static void setup_window(t_window *win)
      win->center.y = (WIN_HEIGHT / 2);
      win->keys = 0;
      win->initialized = 0;
-     win->mods = (t_mods){10.0, -0.7, 0.27015, 0, 0, 0};
+     win->mods = (t_mods){0.02, -0.7, 0.27015, 0, 0, 0};
      if (win->opts & OPT_GPU)
 	  create_cl_device(&win->cl);
 }
@@ -214,15 +214,16 @@ int mouse_hook(int button, int x, int y, t_window *win)
 {
      if (button == 4)
      {
-	  win->mods.scale /= 1.1;
-	  win->mods.xoffset = x - (float)win->disp.center.x;
-	  win->mods.yoffset = y - (float)win->disp.center.y;
+	 
+	  win->mods.xoffset -= win->mods.scale * ((float)x - (float)win->disp.center.x) / 11;
+	  win->mods.yoffset += win->mods.scale * ((float)y - (float)win->disp.center.y) / 11;
+	  win->mods.scale *= 1.1;
      }
      else if (button == 5)
      {
-	  win->mods.scale *= 1.1;
-	  win->mods.xoffset = x - (float)win->disp.center.x;
-	  win->mods.yoffset = y - (float)win->disp.center.y;
+	  win->mods.xoffset += win->mods.scale * ((float)x - (float)win->disp.center.x) / 11;
+	  win->mods.yoffset -= win->mods.scale * ((float)y - (float)win->disp.center.y) / 11;
+	  win->mods.scale /=  1.1;
      }
      win->mods.update = 1;
      return (0);

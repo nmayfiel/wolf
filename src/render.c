@@ -28,8 +28,10 @@ int32_t julia_frag(t_window *win, uint32_t x, uint32_t y)
      coord_re = win->mods.xmouse * 2.0;
      coord_im = win->mods.ymouse * 2.0;
      i = 0;
-     zr = (x - win->disp.width / 2.0) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
-     zi = (y - win->disp.height / 2.0) * (win->mods.scale / win->disp.height);
+     zr = win->mods.xoffset + (x - (float)win->disp.center.x) * win->mods.scale;
+     zi = win->mods.yoffset + (y - (float)win->disp.center.y) * win->mods.scale;
+     //zr = (x - win->disp.width / 2.0) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
+     //zi = (y - win->disp.height / 2.0) * (win->mods.scale / win->disp.height);
      squaredr = square(zr);
      squaredi = square(zi);
      while (squaredr + squaredi <= 4.0 && i < iterations)
@@ -55,8 +57,8 @@ int32_t mandelbrot_frag(t_window *win, uint32_t x, uint32_t y)
      float squaredi;
 
      iterations = 64;
-     coord_re = (x - win->disp.width / 2.0) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
-     coord_im = (y - win->disp.height / 2.0) * (win->mods.scale / win->disp.height);
+     coord_re = win->mods.xoffset + (x - (float)win->disp.center.x) * win->mods.scale;
+     coord_im = win->mods.yoffset + (y - (float)win->disp.center.y) * win->mods.scale;
      i = 0;
      zr = 0;
      zi = 0;
@@ -85,9 +87,12 @@ int32_t burning_ship_frag(t_window *win, uint32_t x, uint32_t y)
      double squaredi;
 
      iterations = 64;
-     double offsetx = (win->mods.xoffset - win->disp.width / 2.0) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
-     coord_re = offsetx + (x) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
-     coord_im = (y - win->disp.height / 2.0) * (win->mods.scale / win->disp.height);
+     //ax = cx + x * scale;
+     //ay = cy + y * scale;
+//     coord_re = (x - (float)win->disp.center.x) * (win->mods.scale / win->disp.width * win->disp.aspect_ratio);
+//     coord_im = (y - (float)win->disp.center.y) * (win->mods.scale / win->disp.height);
+     coord_re = win->mods.xoffset + (x - (float)win->disp.center.x) * win->mods.scale;
+     coord_im = win->mods.yoffset + (y - (float)win->disp.center.y) * win->mods.scale;
      //    printf("%f %f %f %f\n", coord_re, coord_im, win->mods.xoffset, win->mods.yoffset);
      i = 0;
      zr = coord_re;

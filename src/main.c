@@ -237,17 +237,20 @@ int32_t mouse_moved(int x, int y, t_window *win)
      return (0);
 }
 
-char *usage_msg(void)
+void print_usage(char *name)
 {
-     return ("Usage: ./fractol julia|mandelbrot|ship [options]\n" \
-	     "\toptions:\n" \
-             "\t\t-g, --gpu, use opencl implementation");
+     ft_putstr("Usage:\t");
+     ft_putstr(name);
+     ft_putstr(" julia|mandelbrot|ship [-o opencl]\n");
+     exit(0);
 }
+
+
+// TODO: Remove E_USAGE and EMSG_USAGE macros
 
 static void exit_error(int32_t error_code)
 {
-     if (error_code == E_USAGE)
-	  ft_putendl(usage_msg());
+     (void)error_code;
      /*else if (error_code == E_BADFILE)
 	  perror(NULL);
      else if (error_code == E_BADFORM)
@@ -257,7 +260,7 @@ static void exit_error(int32_t error_code)
      exit(0);
 }
 
-void parse_options(int argc, char **argv, t_window *win)
+int parse_options(int argc, char **argv, t_window *win)
 {
      int i;
 
@@ -269,16 +272,17 @@ void parse_options(int argc, char **argv, t_window *win)
      else if (ft_strequ(argv[0], "ship"))
 	  win->opts |= OPT_SHIP;
      else
-	  exit_error(E_USAGE);
+	  return (-1);
      i = 1;
      while (i < argc)
      {
-	  if (ft_strequ(argv[i], "-g") || ft_strequ(argv[i], "--gpu"))
+	  if (ft_strequ(argv[i], "-o"))
 	       win->opts |= OPT_GPU;
 	  else
-	       exit_error(E_USAGE);
+	       return (-1);
 	  ++i;
      }
+     return (1);
 }
 
 /*
@@ -293,8 +297,9 @@ int main(int argc, char **argv)
      t_window win;
 
      if (argc == 1)
-	  exit_error(E_USAGE);
-     parse_options(argc - 1, argv + 1, &win);
+	  print_usage(argv[0]);
+     if (parse_options(argc - 1, argv + 1, &win) == -1)
+	  print_usage(argv[0]);
      setup_window(&win);
      win.initialized = 1;
      print_welcome_msg(argv[0]);
@@ -305,5 +310,7 @@ int main(int argc, char **argv)
      mlx_hook(win.win, 17, 0, close_hook, &win);
      mlx_loop_hook(win.mlx, main_loop, &win);
      mlx_loop(win.mlx);
+     if (0)
+	  exit_error(E_USAGE);
      return (0);
 }

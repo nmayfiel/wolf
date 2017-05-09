@@ -6,13 +6,12 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 17:23:55 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/03 20:10:46 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/05/09 03:11:47 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <OpenCL/opencl.h>
 #include "fractal.h"
-#include "keys.h"
 #include <libft.h>
 #include <mlx.h>
 #include <stdlib.h>
@@ -24,108 +23,111 @@
 // TODO: add xoffset and yoffset parameters to the kernel
 // TODO: compile the kernel offline
 
-const char *burning_ship_source = "\n" \
-"__kernel void burning_ship_kernel(                                     \n" \
-"   __global int *output,                                               \n" \
-"   const unsigned int count,                                           \n" \
-"   int width,                                                    \n" \
-"   int height,                                                   \n" \
-"   float scale,                                                  \n" \
-"   float aspect)                                                 \n" \
-"{                                                                      \n" \
-"   int k = get_global_id(0);                                           \n" \
-"   if(k < count){                                                      \n" \
-"       int x = k % width;                                              \n" \
-"       int y = height - (k / width);                                   \n" \
-"       float coord_re = (x - width / 2.0f) * (scale / width * aspect); \n" \
-"       float coord_im = (y - height / 2.0f) * (scale / height);        \n" \
-"       float zr = coord_re;                                            \n" \
-"       float zi = coord_im;                                            \n" \
-"       float squaredr = zr * zr;                                       \n" \
-"       float squaredi = zi * zi;                                       \n" \
-"       int i = 0;                                                      \n" \
-"       while (squaredr + squaredi <= 4.0f && i < 2048){                  \n" \
-"           zi = zr * zi;                                               \n" \
-"           if(zi < 0)                                                  \n" \
-"               zi = -zi;                                               \n" \
-"           zi = zi + zi - coord_im;                                    \n" \
-"           zr = squaredr - squaredi + coord_re;                        \n" \
-"           squaredr = zr * zr;                                         \n" \
-"           squaredi = zi * zi;                                         \n" \
-"           ++i;                                                        \n" \
-"       }                                                               \n" \
-"       output[k] = i % 4;                                              \n" \
-"   }                                                                   \n" \
-"}                                                                      \n" \
-"\n";
-
-const char *julia_source = "\n" \
-"__kernel void julia_kernel(                                     \n" \
-"   __global int *output,                                               \n" \
-"   const unsigned int count,                                           \n" \
-"   int width,                                                    \n" \
-"   int height,                                                   \n" \
-"   double scale,                                                  \n" \
-"   double aspect,                                                 \n" \
-"   double mousex,                                                 \n" \
-"   double mousey)                                                 \n" \
-"{                                                                      \n" \
-"   int k = get_global_id(0);                                           \n" \
-"   if(k < count){                                                      \n" \
-"       int x = k % width;                                              \n" \
-"       int y = height - (k / width);                                   \n" \
-"       double coord_im = mousex * 2.0f;                                 \n" \
-"       double coord_re = mousey * 2.0f;                                 \n" \
-"       double zr = (x - width / 2.0f) * (scale / width * aspect);       \n" \
-"       double zi = (y - height / 2.0f) * (scale / height);              \n" \
-"       double squaredr = zr * zr;                                       \n" \
-"       double squaredi = zi * zi;                                       \n" \
-"       int i = 0;                                                      \n" \
-"       while (squaredr + squaredi <= 4.0f && i < 4096){                  \n" \
-"           zi = (zr + zi) * (zr + zi) - squaredr - squaredi + coord_im;  \n" \
-"           zr = squaredr - squaredi + coord_re;                        \n" \
-"           squaredr = zr * zr;                                         \n" \
-"           squaredi = zi * zi;                                         \n" \
-"           ++i;                                                        \n" \
-"       }                                                               \n" \
-"       output[k] = i % 4;                                              \n" \
-"   }                                                                   \n" \
-"}                                                                      \n" \
-"\n";
-
-
-const char *mandelbrot_source = "\n" \
-"__kernel void mandelbrot_kernel(                                     \n" \
-"   __global int *output,                                               \n" \
-"   const unsigned int count,                                           \n" \
-"   int width,                                                    \n" \
-"   int height,                                                   \n" \
-"   float scale,                                                  \n" \
-"   float aspect)                                                 \n" \
-"{                                                                      \n" \
-"   int k = get_global_id(0);                                           \n" \
-"   if(k < count){                                                      \n" \
-"       int x = k % width;                                              \n" \
-"       int y = height - (k / width);                                   \n" \
-"       float coord_re = (x - width / 2.0f) * (scale / width * aspect); \n" \
-"       float coord_im = (y - height / 2.0f) * (scale / height);        \n" \
-"       float zr = 0;                                            \n" \
-"       float zi = 0;                                            \n" \
-"       float squaredr = zr * zr;                                       \n" \
-"       float squaredi = zi * zi;                                       \n" \
-"       int i = 0;                                                      \n" \
-"       while (squaredr + squaredi <= 4.0f && i < 2048){                  \n" \
-"           zi = (zr + zi) * (zr + zi) - squaredr - squaredi + coord_im;  \n" \
-"           zr = squaredr - squaredi + coord_re;                        \n" \
-"           squaredr = zr * zr;                                         \n" \
-"           squaredi = zi * zi;                                         \n" \
-"           ++i;                                                        \n" \
-"       }                                                               \n" \
-"       output[k] = i % 4;                                              \n" \
-"   }                                                                   \n" \
-"}                                                                      \n" \
-"\n";
-
+const char *kernel_source = "\n" \
+"__kernel void burning_ship_kernel(\n" \
+"     __global int *output,\n" \
+"     const unsigned int count,\n" \
+"     int width,\n" \
+"     int height,\n" \
+"     double scale,\n" \
+"     double mousex,\n" \
+"     double mousey,\n" \
+"     double offsetx,\n" \
+"     double offsety,\n" \
+"     int iterations, int num_colors)\n" \
+"{\n" \
+"     int k = get_global_id(0);\n" \
+"     if(k < count){\n" \
+"	  int x = k % width;\n" \
+"	  int y = height - (k / width);\n" \
+"	  double coord_re = offsetx + (x - width / 2.0) * scale;\n" \
+"	  double coord_im = offsety + (y - height / 2.0) * scale;\n" \
+"	  double zr = coord_re;\n" \
+"	  double zi = coord_im;\n" \
+"	  double squaredr = zr * zr;\n" \
+"	  double squaredi = zi * zi;\n" \
+"	  int i = 0;\n" \
+"	  while (squaredr + squaredi <= 4.0 && i < iterations){\n" \
+"	       zi = zr * zi;\n" \
+"	       if(zi < 0)\n" \
+"		    zi = -zi;\n" \
+"	       zi = zi + zi - coord_im;\n" \
+"	       zr = squaredr - squaredi + coord_re;\n" \
+"	       squaredr = zr * zr;\n" \
+"	       squaredi = zi * zi;\n" \
+"	       ++i;\n" \
+"	  }\n" \
+"	  output[k] = i % num_colors;\n" \
+"     }\n" \
+"}\n" \
+"\n" \
+"__kernel void julia_kernel(\n" \
+"     __global int *output,\n" \
+"     const unsigned int count,\n" \
+"     int width,\n" \
+"     int height,\n" \
+"     double scale,\n" \
+"     double mousex,\n" \
+"     double mousey,\n" \
+"     double offsetx,\n" \
+"     double offsety,\n" \
+"     int iterations, int num_colors)\n" \
+"{\n" \
+"     int k = get_global_id(0);\n" \
+"     if(k < count){\n" \
+"	  int x = k % width;\n" \
+"	  int y = height - (k / width);\n" \
+"	  double coord_im = mousex * 2.0f;\n" \
+"	  double coord_re = mousey * 2.0f;\n" \
+"	  double zr = offsetx + (x - width / 2.0f) * scale;\n" \
+"	  double zi = offsety + (y - height / 2.0f) * scale;\n" \
+"	  double squaredr = zr * zr;\n" \
+"	  double squaredi = zi * zi;\n" \
+"	  int i = 0;\n" \
+"	  while (squaredr + squaredi <= 4.0f && i < iterations){\n" \
+"	       zi = (zr + zi) * (zr + zi) - squaredr - squaredi + coord_im;\n" \
+"	       zr = squaredr - squaredi + coord_re;\n" \
+"	       squaredr = zr * zr;\n" \
+"	       squaredi = zi * zi;\n" \
+"	       ++i;\n" \
+"	  }\n" \
+"	  output[k] = i % num_colors;\n" \
+"     }\n" \
+"}\n" \
+"\n" \
+"__kernel void mandelbrot_kernel(\n" \
+"     __global int *output,\n" \
+"     const unsigned int count,\n" \
+"     int width,\n" \
+"     int height,\n" \
+"     double scale,\n" \
+"     double mousex,\n" \
+"     double mousey,\n" \
+"     double offsetx,\n" \
+"     double offsety,\n" \
+"     int iterations, int num_colors)\n" \
+"{\n" \
+"     int k = get_global_id(0);\n" \
+"     if(k < count){\n" \
+"	  int x = k % width;\n" \
+"	  int y = height - (k / width);\n" \
+"	  double coord_re = offsetx + (x - width / 2.0f) * scale;\n" \
+"	  double coord_im = offsety + (y - height / 2.0f) * scale;\n" \
+"	  double zr = 0;\n" \
+"	  double zi = 0;\n" \
+"	  double squaredr = zr * zr;\n" \
+"	  double squaredi = zi * zi;\n" \
+"	  int i = 0;\n" \
+"	  while (squaredr + squaredi <= 4.0f && i < iterations){\n" \
+"	       zi = (zr + zi) * (zr + zi) - squaredr - squaredi + coord_im;\n" \
+"	       zr = squaredr - squaredi + coord_re;\n" \
+"	       squaredr = zr * zr;\n" \
+"	       squaredi = zi * zi;\n" \
+"	       ++i;\n" \
+"	  }\n" \
+"	  output[k] = i % num_colors;\n" \
+"     }\n" \
+     "}\n\n";
 
 static t_image get_display_buffer(void *mlx, uint32_t width, uint32_t height)
 {
@@ -145,36 +147,79 @@ static t_image get_display_buffer(void *mlx, uint32_t width, uint32_t height)
      return (display);
 }
 
-void create_cl_device(t_cl_device *cl)
+static void check_status(char* msg, cl_int err) {
+     if (err != CL_SUCCESS) {
+	  fprintf(stderr, "%s failed. Error: %d\n", msg, err);
+     }
+     
+}
+
+void create_cl_device(t_cl_device *cl, int32_t win_opts)
 {
      int err;
 
      if (clGetDeviceIDs(NULL, CL_DEVICE_TYPE_GPU,
 			1, &cl->device_id, NULL) != CL_SUCCESS)
 	  exit(1);
-     cl->context = clCreateContext(0, 1, &cl->device_id, NULL, NULL, &err);
-     if (!cl->context)
-	  exit(1);
+     cl->context = clCreateContext(NULL, 1, &cl->device_id, NULL, NULL, &err);
+     check_status("clCreateContext", err);
      cl->commands = clCreateCommandQueue(cl->context, cl->device_id, 0, &err);
-     if (!cl->commands)
-	  exit(1);
-     cl->program = clCreateProgramWithSource(cl->context, 1,
-			    (const char **)&julia_source, NULL, &err);
+     check_status("clCreateCommandQueue", err);
+
+     const char *bitcode_path = "kernel/kernel.bc";
+     size_t len = ft_strlen(bitcode_path);
+     
+     cl->program = clCreateProgramWithBinary(cl->context, 1, &cl->device_id, &len,
+				 (const unsigned char**)&bitcode_path, NULL, &err);
+     check_status("clCreateProgramWithBinary", err);
+
+//     cl->program = clCreateProgramWithSource(cl->context, 1,
+//			    (const char **)&kernel_source, NULL, &err);
      if (!cl->program)
+     {
+	  printf("Program is no good\n");
 	  exit(1);
-     if (clBuildProgram(cl->program, 0, NULL, NULL, NULL, NULL) != CL_SUCCESS)
-	  exit(1);
-     cl->kernel = clCreateKernel(cl->program, "julia_kernel", &err);
+     }
+     err = clBuildProgram(cl->program, 1, &cl->device_id, NULL, NULL, NULL);
+     check_status("clBuildProgram", err);
+
+if (err == CL_BUILD_PROGRAM_FAILURE) {
+	  // Determine the size of the log
+	  size_t log_size;
+	  clGetProgramBuildInfo(cl->program, cl->device_id, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+
+	  // Allocate memory for the log
+	  char *log = (char *) malloc(log_size);
+
+	  // Get the log
+	  clGetProgramBuildInfo(cl->program, cl->device_id, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
+
+	  // Print the log
+	  printf("%s\n", log);
+     }
+
+     if (win_opts & OPT_JULIA)
+	  cl->kernel = clCreateKernel(cl->program, "julia_kernel", &err);
+     else if (win_opts & OPT_MANDELBROT)
+	  cl->kernel = clCreateKernel(cl->program, "mandelbrot_kernel", &err);
+     else if (win_opts & OPT_SHIP)
+	  cl->kernel = clCreateKernel(cl->program, "burning_ship_kernel", &err);
      if (!cl->kernel || err != CL_SUCCESS)
 	  exit(1);
      cl->output = clCreateBuffer(cl->context, CL_MEM_WRITE_ONLY,
 				 sizeof(int) * DATA_SIZE, NULL, NULL);
      if (!cl->output)
+     {
+	  printf("clCreateBuffer Failed\n");
 	  exit(1);
+     }
      if (clGetKernelWorkGroupInfo(cl->kernel, cl->device_id,
 				    CL_KERNEL_WORK_GROUP_SIZE,
 				  sizeof(cl->local), &cl->local, NULL) != CL_SUCCESS)
+     {
+	  printf("clGetKernelWorkGroupInfo Failed\n");
 	  exit(1);
+     }
 }
 
 void release_cl_device(t_cl_device *cl)
@@ -200,7 +245,7 @@ static void setup_window(t_window *win)
      win->initialized = 0;
      win->mods = (t_mods){0.02, -0.7, 0.27015, 0, 0, 0};
      if (win->opts & OPT_GPU)
-	  create_cl_device(&win->cl);
+	  create_cl_device(&win->cl, win->opts);
 }
 
 static void print_welcome_msg(char *program_name)
@@ -220,14 +265,14 @@ int mouse_hook(int button, int x, int y, t_window *win)
      if (button == 4)
      {
 	 
-	  win->mods.xoffset -= win->mods.scale * ((float)x - (float)win->disp.center.x) / 11;
-	  win->mods.yoffset += win->mods.scale * ((float)y - (float)win->disp.center.y) / 11;
+	  win->mods.xoffset -= win->mods.scale * ((double)x - (float)win->disp.center.x) / 11;
+	  win->mods.yoffset += win->mods.scale * ((double)y - (float)win->disp.center.y) / 11;
 	  win->mods.scale *= 1.1;
      }
      else if (button == 5)
      {
-	  win->mods.xoffset += win->mods.scale * ((float)x - (float)win->disp.center.x) / 11;
-	  win->mods.yoffset -= win->mods.scale * ((float)y - (float)win->disp.center.y) / 11;
+	  win->mods.xoffset += win->mods.scale * ((double)x - (double)win->disp.center.x) / 11;
+	  win->mods.yoffset -= win->mods.scale * ((double)y - (double)win->disp.center.y) / 11;
 	  win->mods.scale /=  1.1;
      }
      win->mods.update = 1;

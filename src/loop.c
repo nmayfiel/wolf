@@ -1,6 +1,5 @@
 #include <libft.h>
 #include "fractal.h"
-#include "keys.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <mlx.h>

@@ -11,18 +11,18 @@
 /* ************************************************************************** */
 
 #include <libft.h>
-#include "fractal.h"
+#include "fractol.h"
 #include <mlx.h>
 #include <math.h>
 
 void clear_image(t_window *win, int32_t color)
 {
-     int32_t i;
+	int32_t i;
 
-     i = 0;
-     while (i < win->disp.size_in_bytes * 4)
-     {
-	  win->disp.data[i] = color;
-	  i++;
-     }
+	i = 0;
+	while (i < win->disp.size_in_bytes * 4)
+	{
+		win->disp.data[i] = color;
+		i++;
+	}
 }

@@ -14,7 +14,7 @@
 # define FRACTAL_H
 
 # include <libft.h>
-# include "keys.h"
+# include <keys.h>
 # include <OpenCL/opencl.h>
 
 
@@ -24,17 +24,15 @@
 ** WINDOW
 */
 
-# define WIN_WIDTH		1000
-# define WIN_HEIGHT		768
-# define DATA_SIZE (1000 * 768)
+# define WIN_WIDTH		768
+# define WIN_HEIGHT		512
+# define DATA_SIZE (512 * 768)
 # define CLEAR_COLOR 0x00000000
 
 /*
 ** ERRORS
 */
 
-# define E_USAGE 1
-# define EMSG_USAGE ""
 # define E_MALLOC 3
 # define EMSG_MALLOC "Allocation error"
 
@@ -46,6 +44,7 @@
 # define OPT_MANDELBROT 1 << 1
 # define OPT_SHIP 1 << 2
 # define OPT_GPU 1 << 3
+# define OPT_64 1 << 4
 
 typedef struct s_f2
 {
@@ -83,6 +82,8 @@ typedef struct s_mods
      double xmouse;
      double ymouse;
      int32_t update;
+     int32_t color_index;
+     int32_t iterations;
      double xoffset;
      double yoffset;
 } t_mods;
@@ -98,7 +99,6 @@ typedef struct		s_image
 	int32_t	height;
 	int32_t	width;
 	t_point	center;
-     float aspect_ratio;
 }					t_image;
 
 typedef struct		s_window
@@ -116,20 +116,38 @@ typedef struct		s_window
      t_cl_device cl;
 }					t_window;
 
+/*
+** Splash Screen
+*/
+
 t_image				get_splash(void *mlx);
 void				render_splash(t_window *win);
 
+/*
+** MLX Helpers
+*/
+
 void clear_image(t_window *win, int32_t color);
 void				render(t_window *win);
-
-int32_t					main_loop(t_window *win);
-int32_t close_hook(t_window *win);
 
 /*
 ** OpenCL Helpers
 */
 
-void create_cl_device(t_cl_device *cl, int32_t win_opts);
+void create_cl_device(t_cl_device *cl, int32_t *win_opts);
 void release_cl_device(t_cl_device *cl);
+
+/*
+** Fract'ol
+*/
+
+void print_usage(char *name);
+void exit_error(int32_t error_code);
+int parse_options(int num_opts, char **opts, t_window *win);
+int32_t					main_loop(t_window *win);
+int32_t mouse_hook(int button, int x, int y, t_window *win);
+int32_t mouse_moved(int x, int y, t_window *win);
+int32_t close_hook(t_window *win);
+
 
 #endif

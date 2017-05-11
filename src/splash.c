@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <libft.h>
-#include "fractal.h"
+#include "fractol.h"
 #include <mlx.h>
 #include <math.h>
 

@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 17:23:55 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/09 03:11:47 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/05/14 21:06:01 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ static void		init_window(t_window *win)
 	win->center.y = (WIN_HEIGHT / 2);
 	win->keys = 0;
 	win->initialized = 0;
-	win->mods = (t_mods){0.02, -0.7, 0.27015, 0, 0,64, 0, 0};
+	win->mods = (t_mods){0.02, -0.7, 0.27015, 0, 0, 64, 0, 0};
 	if (win->opts & OPT_GPU)
 		create_cl_device(&win->cl, &win->opts);
 }
@@ -73,8 +73,8 @@ static void		print_welcome_msg(int32_t gpu)
 
 int				main(int argc, char **argv)
 {
-	t_window win;
-	int32_t gpu;
+	t_window	win;
+	int32_t		gpu;
 
 	if (argc == 1)
 		print_usage(argv[0]);

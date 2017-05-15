@@ -11,7 +11,6 @@ void		check_err(cl_int err)
 		exit(0);
 	} 
 }
-
 /*
 if (err == CL_BUILD_PROGRAM_FAILURE) {
 	  // Determine the size of the log
@@ -78,7 +77,6 @@ void		create_cl_device(t_cl_device *cl, int32_t *win_opts)
 {
 	cl_int err;
 	char *kernel_source;
-	cl_uint address_bits;
 
 	err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_GPU, 1, &cl->device_id, NULL);
 	check_err(err);
@@ -86,9 +84,6 @@ void		create_cl_device(t_cl_device *cl, int32_t *win_opts)
 	check_err(err);
 	cl->commands = clCreateCommandQueue(cl->context, cl->device_id, 0, &err);
 	check_err(err);
-	err = clGetDeviceInfo(cl->device_id, CL_DEVICE_ADDRESS_BITS, sizeof(address_bits), &address_bits, NULL);
-	if (address_bits == 64)
-		*win_opts |= OPT_64;
 	if (*win_opts & OPT_64)
 		kernel_source = kernel_source_from_file("kernel/fractol_64.cl");
 	else

@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   loop.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/05/14 21:01:02 by nmayfiel          #+#    #+#             */
+/*   Updated: 2017/05/14 21:01:11 by nmayfiel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <libft.h>
 #include "fractol.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include <mlx.h>
 
 int32_t			close_hook(t_window *win)
@@ -45,8 +56,8 @@ static int32_t	handle_keys(t_keys keys, t_mods *mods)
 
 int32_t			main_loop(t_window *win)
 {
-	static int32_t rendered_once = 0;
-	int32_t update;
+	static int32_t	rendered_once = 0;
+	int32_t			update;
 
 	win->time += 0.01;
 	if (win->keys & KVAL_ESC)

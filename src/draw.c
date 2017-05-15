@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/03/20 08:44:49 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/09 02:01:03 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/05/14 21:00:14 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <mlx.h>
 #include <math.h>
 
-void clear_image(t_window *win, int32_t color)
+void	clear_image(t_window *win, int32_t color)
 {
 	int32_t i;
 

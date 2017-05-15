@@ -10,16 +10,12 @@ float	square(double x)
 {
 	return (x * x);
 }
-/*
-Green:
-0x00003F0B, 0x00006512, 0x00007F16, 0x00008C18, 0x0000CB23, 0x00008C18, 0x00007F16,  0x00006512, 0x00003F0B
 
-0x00003F0B, 0x00035E5E, 0x00047878, 0x00048585, 0x0007C4C4, 0x00048585, 0x00047878, 0x00035E5E, 0x00003F0B
-
-0x00402E0D, 0x007F5B19, 0x00BF8926, 0x00E5A52E, 0x00FFB733, 0x00E5A52E, 0x00BF8926,  0x007F5B19, 0x00402E0D
-
-0x00821616, 0x00A81D1D, 0x00C22121, 0x00A81D1D, 0x00420B0B
-*/
+typedef struct	s_double2
+{
+	double x;
+	double y;
+}				t_double2;
 
 const int32_t color_arr[2][32] = { {0x00003F0B, 0x00006512, 0x00007F16, 0x00008C18, 0x0000CB23, 0x00008C18, 0x00007F16,  0x00006512, 0x00003F0B, 0x00003F0B, 0x00035E5E, 0x00047878, 0x00048585, 0x0007C4C4, 0x00048585, 0x00047878, 0x00035E5E, 0x00003F0B, 0x00402E0D, 0x007F5B19, 0x00BF8926, 0x00E5A52E, 0x00FFB733, 0x00E5A52E, 0x00BF8926,  0x007F5B19, 0x00402E0D, 0x00821616, 0x00A81D1D, 0x00C22121, 0x00A81D1D, 0x00420B0B}, {0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB}};
 const int32_t num_colors = 32;
@@ -27,28 +23,30 @@ const int32_t num_colors = 32;
 int32_t	julia_frag(t_window *win, uint32_t x, uint32_t y)
 {
 	int32_t i;
-	int32_t iterations;
-	double coord_im;
-	double coord_re;
-	double zr;
-	double zi;
-	double squaredr;
-	double squaredi;
+	t_double2 coord;
+	t_double2 z;
+	t_double2 squared;
 
-	iterations = 64;
-	coord_re = win->mods.xmouse * 2.0;
-	coord_im = win->mods.ymouse * 2.0;
+	//double coord_im;
+	//double coord_re;
+	//double zr;
+	//double zi;
+	//double squaredr;
+	//double squaredi;
+
+	coord.x = win->mods.xmouse * 2.0;
+	coord.y = win->mods.ymouse * 2.0;
 	i = 0;
-	zr = win->mods.xoffset + (x - (double)win->disp.center.x) * win->mods.scale;
-	zi = win->mods.yoffset + (y - (double)win->disp.center.y) * win->mods.scale;
-	squaredr = square(zr);
-	squaredi = square(zi);
-	while (squaredr + squaredi <= 4.0 && i < iterations)
+	z.x = win->mods.xoffset + (x - (double)win->disp.center.x) * win->mods.scale;
+	z.y = win->mods.yoffset + (y - (double)win->disp.center.y) * win->mods.scale;
+	squared.x = square(z.x);
+	squared.y = square(z.y);
+	while (squared.x + squared.y <= 4.0 && i < win->mods.iterations)
 	{
-		zi = square(zr + zi) - squaredr - squaredi + coord_im;
-		zr = squaredr - squaredi + coord_re;
-		squaredr = square(zr);
-		squaredi = square(zi);
+		z.y = square(z.x + z.y) - squared.x - squared.y + coord.y;
+		z.x = squared.x - squared.y + coord.x;
+		squared.x = square(z.x);
+		squared.y = square(z.y);
 		++i;
 	}
 	return (color_arr[win->mods.color_index][i % num_colors]);
@@ -139,11 +137,11 @@ void	render_gpu(t_window *win)
 	err |= clSetKernelArg(win->cl.kernel, 1, sizeof(unsigned int), &count);
 	err |= clSetKernelArg(win->cl.kernel, 2, sizeof(int), &w);
 	err |= clSetKernelArg(win->cl.kernel, 3, sizeof(int), &h);
-	err |= clSetKernelArg(win->cl.kernel, 4, sizeof(float), &scale);
-	err |= clSetKernelArg(win->cl.kernel, 5, sizeof(float), &xmouse);
-	err |= clSetKernelArg(win->cl.kernel, 6, sizeof(float), &ymouse);
-	err |= clSetKernelArg(win->cl.kernel, 7, sizeof(float), &xoffset);
-	err |= clSetKernelArg(win->cl.kernel, 8, sizeof(float), &yoffset);
+	err |= clSetKernelArg(win->cl.kernel, 4, sizeof(double), &scale);
+	err |= clSetKernelArg(win->cl.kernel, 5, sizeof(double), &xmouse);
+	err |= clSetKernelArg(win->cl.kernel, 6, sizeof(double), &ymouse);
+	err |= clSetKernelArg(win->cl.kernel, 7, sizeof(double), &xoffset);
+	err |= clSetKernelArg(win->cl.kernel, 8, sizeof(double), &yoffset);
 	err |= clSetKernelArg(win->cl.kernel, 9, sizeof(int), &iterations);
 	err |= clSetKernelArg(win->cl.kernel, 10, sizeof(int), &num_col);
 	if (err != CL_SUCCESS)

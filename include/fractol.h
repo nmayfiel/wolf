@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/09 01:54:26 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/05/14 20:53:09 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@
 ** WINDOW
 */
 
-# define WIN_WIDTH		768
-# define WIN_HEIGHT		512
-# define DATA_SIZE (512 * 768)
+# define WIN_WIDTH		1000
+# define WIN_HEIGHT		768
+# define DATA_SIZE (1000 * 768)
 # define CLEAR_COLOR 0x00000000
 
 /*
@@ -48,8 +48,8 @@
 
 typedef struct s_f2
 {
-     float x;
-     float y;
+     double x;
+     double y;
 } t_f2;
 
 typedef struct		s_point

@@ -14,7 +14,6 @@
 # define WOLF_H
 
 # include <libft.h>
-# include <keys.h>
 
 # define WIN_NAME	"Wolf 3D"
 

@@ -1,215 +1,426 @@
 #include <libft.h>
-#include "fractol.h"
+#include "wolf.h"
 #include <mlx.h>
 #include <math.h>
 
-
 #include <stdio.h>
+#include <stdlib.h>
 
-float	square(double x)
+void put_minimap_to_image(t_image *img, t_level *level, t_mods *mods)
 {
-	return (x * x);
+     int32_t width;
+     int32_t height;
+     int32_t x;
+     int32_t y;
+     uint32_t i;
+
+     height = 10;
+     width = 10;
+     x = (-(mods->player_current_tile % level->size_x)) * width + (level->size_x * width) / 2;
+     y = (-(mods->player_current_tile / level->size_x)) * height + (level->size_y * height) / 2;
+     i = 0;
+     while (i < level->size)
+     {
+	  if (level->map[i] == MAP_WALL)
+	       draw_rectangle(img, (t_rect){x, y, width, height, 0x77000000});
+	  else if (i == mods->player_current_tile)
+	       draw_rectangle(img, (t_rect){x, y, width, height, 0x000000FF});
+	  x += width;
+	  if ((i + 1) % level->size_x == 0)
+	  {
+	       x = (-(mods->player_current_tile % level->size_x)) * width + (level->size_x * width) / 2;
+	       y += height;
+	  }
+	  ++i;
+     }
 }
 
-typedef struct	s_double2
-{
-	double x;
-	double y;
-}				t_double2;
+/*
+** radians = degrees * M_PI / 180.0;
+** degrees = radians * 180.0 / M_PI;
+*/
 
-const int32_t color_arr[2][32] = { {0x00003F0B, 0x00006512, 0x00007F16, 0x00008C18, 0x0000CB23, 0x00008C18, 0x00007F16,  0x00006512, 0x00003F0B, 0x00003F0B, 0x00035E5E, 0x00047878, 0x00048585, 0x0007C4C4, 0x00048585, 0x00047878, 0x00035E5E, 0x00003F0B, 0x00402E0D, 0x007F5B19, 0x00BF8926, 0x00E5A52E, 0x00FFB733, 0x00E5A52E, 0x00BF8926,  0x007F5B19, 0x00402E0D, 0x00821616, 0x00A81D1D, 0x00C22121, 0x00A81D1D, 0x00420B0B}, {0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB, 0x00000000, 0x00BBBBBB}};
-const int32_t num_colors = 32;
-
-int32_t	julia_frag(t_window *win, uint32_t x, uint32_t y)
+void update_player(t_mods *mods, double time)
 {
+	float x;
+	float y;
+	float vel;
+	float vel2;
+
+	vel = mods->player_velocity;
+	vel2 = mods->player_strafe_velocity;
+	mods->player_angle += mods->player_rotation_factor * (time * 60);
+	x = vel * sin((float)mods->player_angle * M_PI / 180.0);
+	y = vel * cos((float)mods->player_angle * M_PI / 180.0);
+	x += vel2 * sin(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
+	y += vel2 * cos(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
+	mods->player_position_in_tile.x += x * (time * 60);
+	mods->player_position_in_tile.y += y * (time * 60);
+}
+
+void check_collision(t_level *level, t_mods *mods)
+{
+     
+     if (mods->player_position_in_tile.x > 1023)
+     {
+	  if (mods->player_current_tile + 1 < level->size)
+	  {
+	       if ((level->map[mods->player_current_tile + 1] & MAP_WALL) == 0)
+	       {
+		    mods->player_current_tile += 1;
+		    mods->player_position_in_tile.x -= 1023;
+	       }
+	       else
+		    mods->player_position_in_tile.x = 1010;
+	  }
+	  else
+	  {
+	       mods->player_position_in_tile.x = 1010;
+	  }
+     }
+     else if (mods->player_position_in_tile.x < 0)
+     {
+	  if (mods->player_current_tile - 1 > 0)
+	  {
+	       if ((level->map[mods->player_current_tile - 1] & MAP_WALL) == 0)
+	       {
+		    mods->player_current_tile -= 1;
+		    mods->player_position_in_tile.x += 1023;
+	       }
+	       else
+		    mods->player_position_in_tile.x = 9;
+	  }
+	  else
+	  {
+	       mods->player_position_in_tile.x = 9;
+	  }    
+     }
+     if (mods->player_position_in_tile.y > 1023)
+     {
+	  if (mods->player_current_tile - level->size_x > 0)
+	       if ((level->map[mods->player_current_tile - level->size_x] & MAP_WALL) == 0)
+	       {
+		    mods->player_current_tile -= level->size_x;
+		    mods->player_position_in_tile.y -= 1023;
+	       }
+	       else
+		    mods->player_position_in_tile.y = 1010;
+	  else
+	       mods->player_position_in_tile.y = 1010;
+	  
+     }
+     else if (mods->player_position_in_tile.y < 0)
+     {
+	  if (mods->player_current_tile + level->size_x < level->size)
+	       if ((level->map[mods->player_current_tile + level->size_x] & MAP_WALL) == 0)
+	       {
+		    mods->player_current_tile += level->size_x;
+		    mods->player_position_in_tile.y += 1023;
+	       }
+	       else
+		    mods->player_position_in_tile.y = 10;
+	  else
+	       mods->player_position_in_tile.y = 10;
+     }
+}
+
+void manipulate_vertical_image(int32_t ***buffer, uint32_t size)
+{
+     int32_t **buff;
+     uint32_t i;
+     uint8_t r;
+     
+     i = 0;
+     r = 0;
+     buff = *buffer;
+     while (i < size)
+     {
+	     if ((i / 256) % 3 == 0)
+	     	     *(buff[i]) = 0x00FFFFFF;
+	     else
+	     	     *(buff[i]) = 0x00DEDEDE;		     
+	     ++r;
+	     ++i;
+     }
+}
+
+void	render_title(t_window *win)
+{
+     mlx_clear_window(win->mlx, win->win);
+     clear_image(&win->disp, 0x00FFFFFF);
+
+     manipulate_vertical_image(&win->vertical_buffer, win->disp.size_in_pixels);
+     mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
+			     win->center.x - win->disp.center.x,
+			     win->center.y - win->disp.center.y);
+     
+     mlx_put_image_to_window(win->mlx, win->win, win->title_texture.ptr,
+			     win->center.x - win->title_texture.center.x,
+			     (win->center.y * 0.75) - win->title_texture.center.y);
+     mlx_string_put(win->mlx,
+		    win->win,
+		    win->center.x - 35,
+		    win->center.y * 1.1,
+		    0x00990000,
+		    "[ENTER]");     
+}
+
+float		clamp_degrees_f(float angle)
+{
+	float new_angle;
+
+	new_angle = angle;
+	if (new_angle >= 180)
+		new_angle = -180.0 + (new_angle - 180.0);
+	if (new_angle < -180.0)
+		new_angle = 180.0 + (new_angle + 180.0);
+	return (new_angle);
+}
+
+
+void	raycasting(t_window *win, t_level *level, t_mods *mods)
+{
+	int32_t **buff;
+	int32_t row;
+	int32_t col;
+	int32_t x;
+	int32_t y;
+	int32_t max_x;
+	int32_t max_y;
+	int32_t dy;
+	int32_t dx;
+
+	int32_t opposite;
+	int32_t adjascent;
+	int32_t hypotenuse;
+	float distance;
+	t_point ray;
+	int32_t tile_to_check;
+	int32_t color;
+	int32_t newcolor;
+
+	float angle;
+	float beta;
+	float angle_step;
+	int32_t step;
+
 	int32_t i;
-	t_double2 coord;
-	t_double2 z;
-	t_double2 squared;
+	uint32_t di;
+	int32_t wall_height;
+	int32_t margin;
+	int32_t *sample_texture;
+	int32_t place_in_texture_x;
+	int32_t new_place_in_texture_x;
 
-	//double coord_im;
-	//double coord_re;
-	//double zr;
-	//double zi;
-	//double squaredr;
-	//double squaredi;
+	sample_texture = (int32_t *)win->wall_texture.data;
+	buff = win->vertical_buffer;
+	row = mods->player_current_tile / level->size_x;
+	col = mods->player_current_tile % level->size_x;
+	max_x = level->size_x * 1024;
+	max_y = level->size_y * 1024;
+	x = ((col) * 1024) + mods->player_position_in_tile.x;
+	y = ((row) * 1024) + 1023 - mods->player_position_in_tile.y;
 
-	coord.x = win->mods.xmouse * 2.0;
-	coord.y = win->mods.ymouse * 2.0;
-	i = 0;
-	z.x = win->mods.xoffset + (x - (double)win->disp.center.x) * win->mods.scale;
-	z.y = win->mods.yoffset + (y - (double)win->disp.center.y) * win->mods.scale;
-	squared.x = square(z.x);
-	squared.y = square(z.y);
-	while (squared.x + squared.y <= 4.0 && i < win->mods.iterations)
+	angle = (float)clamp_degrees(mods->player_angle -  30);
+	angle_step = 60.0 / 1024.0;
+	step = 0;
+	while (step < 1024)
 	{
-		z.y = square(z.x + z.y) - squared.x - squared.y + coord.y;
-		z.x = squared.x - squared.y + coord.x;
-		squared.x = square(z.x);
-		squared.y = square(z.y);
-		++i;
+		distance = 0;
+
+		ray.y = ((y / 1024) * 1024);
+		ray.y += angle > -90 && angle <= 90 ? -1 : 1024;
+		color = angle > -90 && angle <= 90 ? 0x00FF00FF : 0x0000FFFF;
+		dy = angle > -90 && angle <= 90 ? -1024 : 1024;
+		dx = 1024 / tan(angle * M_PI / 180.0);
+		adjascent = y - ray.y;
+		opposite = adjascent * tan(angle * M_PI / 180.0);
+		hypotenuse = ABS(adjascent) / cos(angle * M_PI / 180.0);
+		ray.x = x + opposite;
+		di = 0;
+		while (di < level->size_y && distance == 0)
+		{
+			adjascent = y - ray.y;
+			opposite = adjascent * tan(angle * M_PI / 180.0);
+			hypotenuse = ABS(adjascent) / cos(angle * M_PI / 180.0);
+			ray.x = x + opposite;
+			if (ray.x > 0 && ray.x < max_x)
+			{
+				tile_to_check = ((ray.y / 1024) * level->size_x) + (ray.x / 1024);
+				if (level->map[tile_to_check] == 1)
+				{
+					beta = angle - (float)mods->player_angle;
+					distance = hypotenuse * cos(beta * M_PI / 180.0);
+					place_in_texture_x = ray.x % 1024;
+				}
+			}
+			ray.y += dy;
+			++di;
+		}
+		
+		ray.x = ((x / 1024) * 1024);
+		angle = clamp_degrees_f(angle);
+		ray.x += angle > 0 ? 1024 : -1;
+		newcolor = angle > 0 ? 0x00FFFF00 : 0x0000FF00;
+		dx = angle > 0 ? 1024 : -1024;
+		dy = 1024 * tan(clamp_degrees_f(angle - 90) * M_PI / 180.0);
+		adjascent = ray.x - x;
+
+		opposite = adjascent * tan(clamp_degrees_f(angle - 90) * M_PI / 180.0);
+		hypotenuse = ABS(adjascent) / cos(clamp_degrees_f(angle - 90) * M_PI / 180.0);
+		
+		ray.y = y + opposite;
+		di = 0;
+		float newdistance;
+		newdistance = 0;
+		while (di < level->size_x && newdistance == 0)
+		{
+			adjascent = ray.x - x;
+
+			opposite = adjascent * tan(clamp_degrees_f(angle - 90) * M_PI / 180.0);
+			hypotenuse = ABS(adjascent) / cos(clamp_degrees_f(angle - 90) * M_PI / 180.0);
+		
+			ray.y = y + opposite;
+			if (ray.y > 0 && ray.y < max_y)
+			{
+				tile_to_check = ((ray.y / 1024) * level->size_x) + (ray.x / 1024);
+				if (level->map[tile_to_check] == 1)
+				{
+					beta = angle - (float)mods->player_angle;
+					newdistance = hypotenuse * cos(beta * M_PI / 180.0);
+					new_place_in_texture_x = ray.y % 1024;
+				}
+			}
+			ray.x += dx;
+			++di;
+		}
+
+		if ((ABS(distance) > ABS(newdistance) && newdistance != 0) || distance == 0)
+		{
+			distance = newdistance;
+			color = newcolor;
+			place_in_texture_x = new_place_in_texture_x;
+		}
+		
+		if (distance != 0)
+		{
+			i = 0;
+
+			wall_height = ABS((float)1024 / (float)distance) * 864.0;
+			margin = (768 - wall_height) / 2;
+			while (i < 768)
+			{
+				if (i < margin)
+					*(buff[(768 * step) + i]) = 0x0033333c;
+				else if (i < wall_height + margin)
+				{
+					int32_t place_in_texture = ((float)(i - margin) / wall_height) * 1024;
+					*(buff[(768 * step) + i]) = sample_texture[(1024 * place_in_texture_x) + place_in_texture];
+					//sample_texture
+				}
+				else
+					*(buff[(768 * step) + i]) = 0x00999999;
+				++i;
+			}
+		}
+		else
+		{
+			i = 0;
+			margin = 768 / 2;
+			while (i < 768)
+			{
+				if (i < margin)
+					*(buff[(768 * step) + i]) = 0x00333339;
+				else
+					*(buff[(768 * step) + i]) = 0x00999999;
+				++i;
+			}
+		}
+		
+		angle += angle_step;
+		step++;
 	}
-	return (color_arr[win->mods.color_index][i % num_colors]);
 }
 
-int32_t	mandelbrot_frag(t_window *win, uint32_t x, uint32_t y)
+/*
+** Rendering enemies:
+** 	* find the difference between your rotations to determine which angle
+	the enemy should be
+
+	* the images will need to be displayed forward and backward
+
+	* You can easily determine the size of the enemy based on the distance
+
+	* You need a function to put an image to another image in order to scale it.
+
+	* You will need to calculate where on the floor the enemy should show up
+	* in addition, you need to calculate where the horizon line is in order
+	* to display where your walls are, and how much padding to put on the top
+	* and bottom of it, rather than just splitting it in half.
+
+*/
+
+// 310, 11
+// 67, 67
+
+void	draw_enemy_at_point(t_image *img, t_image *src, int32_t x, int32_t y)
 {
+	int32_t width = 300;
+	int32_t height = 300;
+	int32_t ssize;
+	int32_t *data;
+	int32_t *src_data;
 	int32_t i;
-	int32_t iterations;
-	double coord_im;
-	double coord_re;
-	double zr;
-	double zi;
-	double squaredr;
-	double squaredi;
+	int32_t si;
+	int32_t sx;
+	int32_t sy;
+	int32_t x2;
+	int32_t y2;
 
-	iterations = 64;
-	coord_re = win->mods.xoffset + (x - (double)win->disp.center.x) * win->mods.scale;
-	coord_im = win->mods.yoffset + (y - (double)win->disp.center.y) * win->mods.scale;
-	i = 0;
-	zr = 0;
-	zi = 0;
-	squaredr = square(zr);
-	squaredi = square(zi);
-	while ((squaredr + squaredi) <= 4.0 && i < iterations)
+	data = (int32_t *)img->data;
+	src_data = (int32_t *)src->data;
+	y2 = 0;
+	ssize = 67;
+	while (y2 < height)
 	{
-		zi = square(zr + zi) - squaredr - squaredi + coord_im;
-		zr = squaredr - squaredi + coord_re;
-		squaredr = square(zr);
-		squaredi = square(zi);
-		++i;
+		x2 = 0;
+		while (x2 < width)
+		{
+			if (x + x2 < img->width && x + x2 >= 0 && y + y2 >= 0 && y + y2 < img->height)
+			{
+				i = x + x2 + (img->width * (y + y2));
+				sx = 308 + (((float)x2 / (float)width) * ssize);
+				sy = 11 + (((float)y2 / (float)height) * ssize);
+				si = sx + (sy * src->width);
+				if (!(src_data[si] & 0xFF000000) && i < img->size_in_pixels && i >= 0 && si < src->size_in_pixels && si >= 0)
+					data[i] = src_data[si];
+			}
+			++x2;
+		}
+		++y2;
 	}
-	return (color_arr[win->mods.color_index][i % num_colors]);
 }
 
-int32_t	burning_ship_frag(t_window *win, uint32_t x, uint32_t y)
+void	render_game(t_window *win)
 {
-	int32_t i;
-	int32_t iterations;
-	double coord_im;
-	double coord_re;
-	double zr;
-	double zi;
-	double squaredr;
-	double squaredi;
-
-	iterations = 64;
-	coord_re = win->mods.xoffset + (x - (double)win->disp.center.x) * win->mods.scale;
-	coord_im = win->mods.yoffset + (y - (double)win->disp.center.y) * win->mods.scale;
-	i = 0;
-	zr = coord_re;
-	zi = coord_im;
-	squaredr = square(zr);
-	squaredi = square(zi);
-	while ((squaredr + squaredi) <= 4.0 && i < iterations)
+	mlx_clear_window(win->mlx, win->win);
+	if (win->game_state & GS_NORME)
 	{
-		zi = ABS(zr * zi);
-		zi = zi + zi - coord_im;
-		zr = squaredr - squaredi + coord_re;
-		squaredr = square(zr);
-		squaredi = square(zi);
-		++i;
-	}
-	return (color_arr[win->mods.color_index][i % num_colors]);
-}
-
-void	render_gpu(t_window *win)
-{
-	int32_t *buffer;
-	int result[DATA_SIZE];
-	size_t global;
-	uint32_t count;
-	int err;
-
-	buffer = (int32_t *)win->disp.data;
-	count = DATA_SIZE;
-	err = 0;
-	int w = win->disp.width;
-	int h = win->disp.height;
-	float scale = win->mods.scale;
-	float xmouse = win->mods.xmouse;
-	float ymouse = win->mods.ymouse;
-	float xoffset = win->mods.xoffset;
-	float yoffset = win->mods.yoffset;
-	int iterations = win->mods.iterations;
-	int num_col = num_colors;
-	err |= clSetKernelArg(win->cl.kernel, 0, sizeof(cl_mem), &win->cl.output);
-	err |= clSetKernelArg(win->cl.kernel, 1, sizeof(unsigned int), &count);
-	err |= clSetKernelArg(win->cl.kernel, 2, sizeof(int), &w);
-	err |= clSetKernelArg(win->cl.kernel, 3, sizeof(int), &h);
-	err |= clSetKernelArg(win->cl.kernel, 4, sizeof(double), &scale);
-	err |= clSetKernelArg(win->cl.kernel, 5, sizeof(double), &xmouse);
-	err |= clSetKernelArg(win->cl.kernel, 6, sizeof(double), &ymouse);
-	err |= clSetKernelArg(win->cl.kernel, 7, sizeof(double), &xoffset);
-	err |= clSetKernelArg(win->cl.kernel, 8, sizeof(double), &yoffset);
-	err |= clSetKernelArg(win->cl.kernel, 9, sizeof(int), &iterations);
-	err |= clSetKernelArg(win->cl.kernel, 10, sizeof(int), &num_col);
-	if (err != CL_SUCCESS)
-	{
-		printf("Could not set arguments for opencl\n");
-		exit(1);
-	}
-	global = count;
-	err = clEnqueueNDRangeKernel(win->cl.commands, win->cl.kernel, 1, NULL, &global, &win->cl.local, 0, NULL, NULL);
-	if (err)
-	{
-		printf("Could not enqueue kernel\n");
-		exit(1);
-	}
-	clFinish(win->cl.commands);
-	err = clEnqueueReadBuffer(win->cl.commands, win->cl.output, CL_TRUE, 0, sizeof(int) * count, result, 0, NULL, NULL );  
-	if (err != CL_SUCCESS)
-	{
-		printf("Error: Failed to read output array! %d\n", err);
-		exit(1);
-	}
-	for (size_t b = 0; b < count; b++)
-	{
-		buffer[b] = color_arr[win->mods.color_index][result[b]];
+		clear_image(&win->disp, 0x00000000);
+		update_player(&win->mods, win->frame_time);
+		check_collision(&win->level, &win->mods);
+		raycasting(win, &win->level, &win->mods);
+		draw_enemy_at_point(&win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
+		put_minimap_to_image(&win->disp, &win->level, &win->mods);
 	}
 	mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
-			win->center.x - win->disp.center.x,
-			win->center.y - win->disp.center.y);
-}
-
-void	render_normal(t_window *win)
-{
-	int32_t *buffer;
-	size_t k;
-	uint32_t x;
-	uint32_t y;
-
-	buffer = (int32_t *)win->disp.data;
-	k = 0;
-	while (k < win->disp.size_line / sizeof(int32_t) * win->disp.height)
-	{
-		x = (uint32_t)(k % win->disp.width);
-		y = win->disp.height - (uint32_t)(k / win->disp.width);
-		if (win->opts & OPT_SHIP)
-			buffer[k] = burning_ship_frag(win, x, y);
-		else if (win->opts & OPT_JULIA)
-			buffer[k] = julia_frag(win, x, y);
-		else if (win->opts & OPT_MANDELBROT)
-			buffer[k] = mandelbrot_frag(win, x, y);
-		++k;
-	}
-	mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
-			win->center.x - win->disp.center.x,
-			win->center.y - win->disp.center.y);
-}
-
-void	render(t_window *win)
-{
-	if (win->opts & OPT_GPU)
-		render_gpu(win);
-	else
-		render_normal(win);
-	mlx_string_put(win->mlx, win->win, WIN_WIDTH - 120, WIN_HEIGHT - 30, 0x00EEEEEE, "Iter:");
-	mlx_string_put(win->mlx, win->win, WIN_WIDTH - 60, WIN_HEIGHT - 30, 0x00FFFFFF, ft_itoa(win->mods.iterations));
-	mlx_string_put(win->mlx, win->win, WIN_WIDTH - 120, WIN_HEIGHT - 50, 0x00FFFFFF, "Zoom:");
-	mlx_string_put(win->mlx, win->win, WIN_WIDTH - 60, WIN_HEIGHT - 50, 0x00FFFFFF, ft_itoa((int)(-log( win->mods.scale))));
-	mlx_string_put(win->mlx, win->win, WIN_WIDTH - 120, WIN_HEIGHT - 90, 0x00EEEEEE, "XOff:");
-	mlx_string_put(win->mlx, win->win, WIN_WIDTH - 60, WIN_HEIGHT - 90, 0x00FFFFFF, ft_itoa((int)win->mods.xoffset));
-	mlx_string_put(win->mlx, win->win, WIN_WIDTH - 120, WIN_HEIGHT - 70, 0x00EEEEEE, "YOff:");
-	mlx_string_put(win->mlx, win->win, WIN_WIDTH - 60, WIN_HEIGHT - 70, 0x00FFFFFF, ft_itoa((int)win->mods.yoffset));
+					win->center.x - win->disp.center.x,
+					win->center.y - win->disp.center.y);
+	if (win->game_state & GS_PAUSE)
+		mlx_string_put(win->mlx,
+			       win->win,
+			       win->center.x - 40,
+			       win->center.y,
+			       0x00990000,
+			       "[Paused]");
 }

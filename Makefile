@@ -10,15 +10,15 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = fractol
+NAME = wolf
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = -Llibft/ -Lminilibx
-LDLIBS = -lft -lmlx -framework OpenGL -framework AppKit -framework OpenCL
+LDLIBS = -lft -lmlx -framework OpenGL -framework AppKit
 CFLAGS += -Iinclude/ -Ilibft/include/ -Iminilibx
 
 FILENAMES = main.c draw.c loop.c render.c splash.c parse_options.c \
-		opencl_setup.c errors.c mouse.c
+		errors.c colors.c read_level_map.c keys.c
 FNS = $(addprefix src/, $(FILENAMES))
 OBJECTS = $(addprefix build/, $(FILENAMES:.c=.o))
 

@@ -11,66 +11,134 @@
 /* ************************************************************************** */
 
 #include <libft.h>
-#include "fractol.h"
+#include "wolf.h"
 #include <stdlib.h>
 #include <mlx.h>
+#include <mach/mach_time.h>
+
+#include <stdio.h>
 
 int32_t			close_hook(t_window *win)
 {
 	mlx_destroy_window(win->mlx, win->win);
-	if (win->opts & OPT_GPU)
-		release_cl_device(&win->cl);
 	exit(0);
 }
 
-void			limit_num(int32_t *n, int32_t low, int32_t high)
+int32_t		clamp_degrees(int32_t angle)
 {
-	if (*n > high)
-		*n = high;
-	if (*n < low)
-		*n = low;
+	int32_t new_angle;
+
+	new_angle = angle;
+	if (new_angle == -180)
+		new_angle = 180;
+	if (new_angle > 180)
+		new_angle = -180 + new_angle - 180;
+	return (new_angle);
 }
 
-static int32_t	handle_keys(t_keys keys, t_mods *mods)
+static int32_t		handle_keys(t_keys *keys, t_mods *mods)
 {
-	if (keys & KVAL_UP)
-		mods->yoffset += mods->scale * 11;
-	if (keys & KVAL_DOWN)
-		mods->yoffset -= mods->scale * 11;
-	if (keys & KVAL_LEFT)
-		mods->xoffset -= mods->scale * 11;
-	if (keys & KVAL_RIGHT)
-		mods->xoffset += mods->scale * 11;
-	if (keys & KVAL_D)
-		mods->color_index += 1;
-	if (keys & KVAL_A)
-		mods->color_index -= 1;
-	limit_num(&mods->color_index, 0, 1);
-	if (keys & KVAL_W)
-		mods->iterations += 32;
-	if (keys & KVAL_S)
-		mods->iterations -= 32;
-	limit_num(&mods->iterations, 0, 8192);
-	return (keys != 0);
+	if (keys->up.ended_down)
+		mods->player_velocity = 50.0;
+	else if (keys->up.changed)
+		mods->player_velocity = 0.0;
+	if (keys->down.ended_down)
+		mods->player_velocity = -50.0;
+	else if (keys->down.changed)
+		mods->player_velocity = 0.0;
+	if (keys->left_alt.ended_down)
+		mods->player_strafe_velocity = 20.0;
+	else if (keys->left_alt.changed)
+		mods->player_strafe_velocity = 0.0;
+	if (keys->right_alt.ended_down)
+		mods->player_strafe_velocity = -20.0;
+	else if (keys->right_alt.changed)
+		mods->player_strafe_velocity = 0.0;
+	if (keys->left.ended_down)
+		mods->player_rotation_factor = -4;
+	else if (keys->left.changed)
+		mods->player_rotation_factor = 0;
+	if (keys->right.ended_down)
+		mods->player_rotation_factor = 4;
+	else if (keys->right.changed)
+		mods->player_rotation_factor = 0;
+	mods->player_angle = clamp_degrees(mods->player_angle);
+	mods->update = keys->up.ended_down | keys->down.ended_down | keys->left_alt.ended_down | keys->right_alt.ended_down | keys->left.ended_down | keys->right.ended_down;
+	return (mods->update);
+}
+
+double			seconds_per_frame(uint64_t last,
+					  uint64_t current)
+{
+     static mach_timebase_info_data_t tb;
+     uint64_t elapsed;
+     uint64_t nanosecs;
+
+     elapsed = current - last;
+     if (tb.denom == 0)
+	  mach_timebase_info(&tb);
+     nanosecs = elapsed * tb.numer / tb.denom;
+     return ((double)nanosecs * 1.0E-9);
+}
+
+void			update_time(t_window *win)
+{
+     uint64_t current_time;
+
+     if (win->game_state != GS_PAUSE)
+     {
+	     current_time = mach_absolute_time();
+	     win->frame_time = seconds_per_frame(win->last_update, current_time);
+	     if (win->frame_time < 1.0)
+		     win->time += win->frame_time;
+	     win->last_update = current_time;
+     }
+}
+
+void	reset_key_changed(t_keys *keys)
+{
+	keys->close.changed = 0;
+	keys->up.changed = 0;
+	keys->down.changed = 0;
+	keys->left.changed = 0;
+	keys->right.changed = 0;
+	keys->enter.changed = 0;
+	keys->pause.changed = 0;
+	keys->right_alt.changed = 0;
+	keys->left_alt.changed = 0;
 }
 
 int32_t			main_loop(t_window *win)
 {
-	static int32_t	rendered_once = 0;
-	int32_t			update;
+	int32_t		needs_update;
 
-	win->time += 0.01;
-	if (win->keys & KVAL_ESC)
+	needs_update = handle_keys(&win->keys, &win->mods);
+	if (win->keys.close.ended_down)
 		close_hook(win);
-	if (win->initialized == 1 && win->time >= 2.0)
+	if ((win->game_state & GS_TITLE) && win->keys.enter.changed && win->keys.enter.ended_down)
 	{
-		update = handle_keys(win->keys, &win->mods);
-		if (!rendered_once || update || win->mods.update)
-			render(win);
-		win->mods.update = 0;
-		rendered_once = 1;
+		win->game_state = GS_NORME;
+		win->mods.update = 1;
 	}
-	else
-		render_splash(win);
+	if (win->keys.pause.ended_down && win->keys.pause.changed)
+	{
+		if (win->game_state & GS_PAUSE)
+			win->game_state = GS_NORME;
+		else if (win->game_state & GS_NORME)
+			win->game_state = GS_PAUSE;
+		win->mods.update = 1;
+	}
+	update_time(win);
+	if (win->initialized == 1)
+	{
+		if (win->game_state & GS_SPLASH)
+			render_splash(win);
+		else if (win->game_state & GS_TITLE)
+			render_title(win);
+		else if ((win->game_state & (GS_NORME | GS_PAUSE)) && (needs_update || win->mods.update))
+			render_game(win);
+		win->mods.update = 0;
+	}
+	reset_key_changed(&win->keys);
 	return (0);
 }

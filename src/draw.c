@@ -11,18 +11,48 @@
 /* ************************************************************************** */
 
 #include <libft.h>
-#include "fractol.h"
+#include "wolf.h"
 #include <mlx.h>
 #include <math.h>
 
-void	clear_image(t_window *win, int32_t color)
+void	clear_image(t_image *img, int32_t color)
 {
 	int32_t i;
+	int32_t *buffer;
 
+	buffer = (int32_t *)img->data;
 	i = 0;
-	while (i < win->disp.size_in_bytes * 4)
+	while (i < img->size_in_pixels)
 	{
-		win->disp.data[i] = color;
-		i++;
+		buffer[i] = color;
+		++i;
 	}
+}
+
+void draw_rectangle(t_image *img, t_rect rect)
+{
+     int32_t *buffer;
+     int32_t row;
+     int32_t col;
+     int32_t pos;
+
+     buffer = (int32_t *)img->data;
+     row = rect.y;
+     while (row < rect.y + rect.height)
+     {
+	  col = rect.x;
+	  while (col < rect.x + rect.width)
+	  {
+	       pos = col + (img->width * row);
+	       if (pos >= 0
+		   && pos < img->size_in_pixels
+		   && col >= 0
+		   && col < img->width
+		   && row >= 0
+		   && row < img->height)
+		    buffer[col + (img->width * row)] = rect.color;
+	       ++col;
+	  }
+	  ++row;
+     }
 }

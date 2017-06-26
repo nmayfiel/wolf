@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/14 21:00:26 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/14 21:00:34 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/26 16:19:47 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@
 void	print_usage(char *name)
 {
 	ft_putstr("Usage:\t");
-	ft_putstr(name);
-	ft_putstr(" julia|mandelbrot|ship [-o opencl]\n");
+	ft_putendl(name);
 	exit(0);
 }
 

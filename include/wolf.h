@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/26 17:10:39 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/27 00:06:16 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ typedef struct		s_keys
 	t_key	right_alt;
 	t_key	enter;
 	t_key	pause;
+	t_key   fire;
 }			t_keys;
 
 typedef struct		s_f2
@@ -64,6 +65,33 @@ typedef struct		s_point
 	int32_t	x;
 	int32_t	y;
 }					t_point;
+
+typedef struct s_tx_sample
+{
+	int32_t x;
+	int32_t y;
+	int32_t x_dir;
+	int32_t y_dir;
+	int32_t width;
+	int32_t height;
+} t_tx_sample;
+
+typedef struct s_gun
+{
+	t_tx_sample sample_data[11];
+
+	int32_t default_anim;
+	int32_t default_anim_start_frame;
+	int32_t default_anim_end_frame;
+	double default_time_per_frame;
+	double default_start_time;
+
+	int32_t shooting_anim;
+	double shooting_anim_time;
+	double shooting_anim_time_per_frame;
+	double shooting_anim_frame_start;
+	double shooting_anim_frame_end;
+} t_gun;
 
 //typedef struct	s_hsv_colors
 //{
@@ -81,6 +109,7 @@ typedef struct		s_mods
 	int32_t		player_rotation_factor;
 	int32_t		player_angle;
 	int32_t		update;
+	int32_t should_fire;
 }				t_mods;
 
 typedef struct		s_image
@@ -125,15 +154,17 @@ typedef struct		s_window
 	int32_t		**vertical_buffer;
 	t_image		splash;
 	t_image		splash_mask;
+	t_image		title_texture;
+	t_image		enemy_texture;
 	t_image		wall_texture;
+	t_image		shotgun_texture;
+	t_gun gun;
 	t_point		center;
 	t_keys		keys;
 	t_mods		mods;
 	int			initialized;
 	int32_t		opts;
 	t_level		level;
-	t_image		title_texture;
-	t_image		enemy_texture;
 	uint32_t	game_state;
 }					t_window;
 

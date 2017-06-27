@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/14 20:53:09 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/27 00:03:38 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,8 @@ int32_t		key_down(int32_t kc, t_keys *keys)
 		change_key_state(&keys->left_alt, is_down);
 	if (kc == kVK_ANSI_D)
 		change_key_state(&keys->right_alt, is_down);
+	if (kc == kVK_Space)
+		change_key_state(&keys->fire, is_down);
 	return (0);
 }
 
@@ -141,5 +143,7 @@ int32_t		key_up(int32_t kc, t_keys *keys)
 		change_key_state(&keys->left_alt, is_down);
 	if (kc == kVK_ANSI_D)
 		change_key_state(&keys->right_alt, is_down);
+	if (kc == kVK_Space)
+		change_key_state(&keys->fire, is_down);
 	return (0);
 }

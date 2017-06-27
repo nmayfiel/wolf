@@ -360,10 +360,14 @@ void	raycasting(t_window *win, t_level *level, t_mods *mods)
 
 */
 
-// 310, 11
-// 67, 67
+// cacodemon has 34 images
+// forward or backward (1 or -1)
+// top left corner: 308, 11
+// sample size: 67, 67
 
-void	draw_enemy_at_point(t_image *img, t_image *src, int32_t x, int32_t y)
+extern t_tx_sample enemies[34];
+
+void	draw_enemy_at_point(int32_t enemy_index, t_image *img, t_image *src, int32_t x, int32_t y)
 {
 	int32_t width = 300;
 	int32_t height = 300;
@@ -389,8 +393,51 @@ void	draw_enemy_at_point(t_image *img, t_image *src, int32_t x, int32_t y)
 			if (x + x2 < img->width && x + x2 >= 0 && y + y2 >= 0 && y + y2 < img->height)
 			{
 				i = x + x2 + (img->width * (y + y2));
-				sx = 308 + (((float)x2 / (float)width) * ssize);
-				sy = 11 + (((float)y2 / (float)height) * ssize);
+				if (enemies[enemy_index].x_dir == 1)
+					sx = enemies[enemy_index].x + (((float)x2 / (float)width) * ssize);
+				else if (enemies[enemy_index].x_dir == -1)
+					sx = enemies[enemy_index].x + (ssize - (((float)x2 / (float)width) * ssize));
+				sy = enemies[enemy_index].y + (((float)y2 / (float)height) * ssize);
+				si = sx + (sy * src->width);
+				if (!(src_data[si] & 0xFF000000) && i < img->size_in_pixels && i >= 0 && si < src->size_in_pixels && si >= 0)
+					data[i] = src_data[si];
+			}
+			++x2;
+		}
+		++y2;
+	}
+}
+
+//extern t_tx_sample shotguns[11];
+
+void draw_gun(int32_t shotgun_index, t_gun gun, t_image *img, t_image *src, int32_t x, int32_t y)
+{
+	int32_t width = 292;
+	int32_t height = 400;
+	int32_t *data;
+	int32_t *src_data;
+	int32_t i;
+	int32_t si;
+	int32_t sx;
+	int32_t sy;
+	int32_t x2;
+	int32_t y2;
+
+	data = (int32_t *)img->data;
+	src_data = (int32_t *)src->data;
+	y2 = 0;
+	while (y2 < height)
+	{
+		x2 = 0;
+		while (x2 < width)
+		{
+			if (x + x2 < img->width && x + x2 >= 0 && y + y2 >= 0 && y + y2 < img->height)
+			{
+				i = (x + x2) + (img->width * (y + y2));
+				sx = gun.sample_data[shotgun_index].x + (((float)x2 / (float)width)
+								  * gun.sample_data[shotgun_index].width);
+				sy = gun.sample_data[shotgun_index].y + (((float)y2 / (float)height)
+								  * gun.sample_data[shotgun_index].height);
 				si = sx + (sy * src->width);
 				if (!(src_data[si] & 0xFF000000) && i < img->size_in_pixels && i >= 0 && si < src->size_in_pixels && si >= 0)
 					data[i] = src_data[si];
@@ -403,6 +450,52 @@ void	draw_enemy_at_point(t_image *img, t_image *src, int32_t x, int32_t y)
 
 void	render_game(t_window *win)
 {
+	static int32_t enemy_index = 0;
+	static double time = 0;
+	static int32_t shotgun_index = 0;
+	int32_t perturb_y;
+
+	if (win->mods.player_velocity != 0 || win->mods.player_strafe_velocity != 0)
+		perturb_y = cos(5 * M_PI * win->time) * 4;
+	else
+		perturb_y = 0;
+	if (win->mods.should_fire && win->gun.shooting_anim == 0)
+	{
+		win->gun.shooting_anim = 1;
+		win->gun.default_anim = 0;
+		win->gun.shooting_anim_time = win->time;
+	}
+	if (win->time - time > 0.07)
+	{
+		++enemy_index;
+		time = win->time;
+		if (enemy_index > 7)
+			enemy_index = 0;
+	}
+	if (win->gun.default_anim)
+	{
+		if (win->time - win->gun.default_start_time > win->gun.default_time_per_frame)
+		{
+			++shotgun_index;
+			if (shotgun_index > win->gun.default_anim_end_frame)
+				shotgun_index = win->gun.default_anim_start_frame;
+			win->gun.default_start_time = win->time;
+		}
+	}
+	else if (win->gun.shooting_anim)
+	{
+		if (win->time - win->gun.shooting_anim_time > win->gun.shooting_anim_time_per_frame)
+		{
+			++shotgun_index;
+			if (shotgun_index > win->gun.shooting_anim_frame_end)
+			{
+				shotgun_index = win->gun.default_anim_start_frame;
+				win->gun.default_anim = 1;
+				win->gun.shooting_anim = 0;
+			}
+			win->gun.shooting_anim_time = win->time;
+		}
+	}
 	mlx_clear_window(win->mlx, win->win);
 	if (win->game_state & GS_NORME)
 	{
@@ -410,12 +503,16 @@ void	render_game(t_window *win)
 		update_player(&win->mods, win->frame_time);
 		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
-		draw_enemy_at_point(&win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
+//		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
+		draw_gun(shotgun_index, win->gun, &win->disp, &win->shotgun_texture, win->disp.center.x - 146, win->disp.height - 396 + perturb_y);
 		put_minimap_to_image(&win->disp, &win->level, &win->mods);
 	}
 	mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
 					win->center.x - win->disp.center.x,
 					win->center.y - win->disp.center.y);
+	//mlx_put_image_to_window(win->mlx, win->win, win->shotgun_texture.ptr,
+	//			win->center.x - win->shotgun_texture.center.x,
+	//			win->center.y - win->shotgun_texture.center.y);
 	if (win->game_state & GS_PAUSE)
 		mlx_string_put(win->mlx,
 			       win->win,

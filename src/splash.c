@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/03/21 09:15:26 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/26 16:45:54 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/26 17:27:13 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,41 +16,6 @@
 #include <math.h>
 
 #include <stdio.h>
-/*
-t_image		get_splash(void *mlx)
-{
-	t_image splash;
-
-	splash.ptr = png_file_to_image(mlx, "assets/splash.png",
-			&splash.width,
-			&splash.height);
-	splash.data = (int8_t *)mlx_get_data_addr(splash.ptr,
-			&splash.bpp,
-			&splash.size_line,
-			&splash.endian);
-	splash.center.x = splash.width / 2;
-	splash.center.y = splash.height / 2;
-	return (splash);
-}
-*/
-t_image		get_splash_mask(void *mlx, int32_t width, int32_t height)
-{
-	t_image mask;
-
-	mask.ptr = mlx_new_image(mlx,
-			width,
-			height);
-	mask.width = width;
-	mask.height = height;
-	mask.data = (int8_t *)mlx_get_data_addr(mask.ptr,
-			&mask.bpp,
-			&mask.size_line,
-			&mask.endian);
-	mask.center.x = mask.width / 2;
-	mask.center.y = mask.height / 2;
-	clear_image(&mask, 0x00FFFFFF);
-	return (mask);
-}
 
 void		render_splash(t_window *win)
 {

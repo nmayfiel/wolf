@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/14 21:01:02 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/14 21:01:11 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/27 00:05:37 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,10 @@ static int32_t		handle_keys(t_keys *keys, t_mods *mods)
 		mods->player_rotation_factor = 4;
 	else if (keys->right.changed)
 		mods->player_rotation_factor = 0;
+	if (keys->fire.ended_down && keys->fire.changed)
+		mods->should_fire = 1;
+	else
+		mods->should_fire = 0;
 	mods->player_angle = clamp_degrees(mods->player_angle);
 	mods->update = keys->up.ended_down | keys->down.ended_down | keys->left_alt.ended_down | keys->right_alt.ended_down | keys->left.ended_down | keys->right.ended_down;
 	return (mods->update);
@@ -132,10 +136,11 @@ int32_t			main_loop(t_window *win)
 	if (win->initialized == 1)
 	{
 		if (win->game_state & GS_SPLASH)
-			render_splash(win);
-		else if (win->game_state & GS_TITLE)
+			//render_splash(win);
+			win->game_state = GS_TITLE;
+/*		else*/ if (win->game_state & GS_TITLE)
 			render_title(win);
-		else if ((win->game_state & (GS_NORME | GS_PAUSE)) && (needs_update || win->mods.update))
+		else if ((win->game_state & (GS_NORME | GS_PAUSE)) /*&& (needs_update || win->mods.update)*/)
 			render_game(win);
 		win->mods.update = 0;
 	}

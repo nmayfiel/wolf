@@ -44,13 +44,15 @@ int32_t read_level_map(const char *fn, t_level *level, t_mods *mods)
 	  return (-1);
      get_next_line(fd, &line);
      vals = ft_strsplit(line, ' ');
-     if (get_char_array_size(vals) != 2)
+     if (get_char_array_size(vals) != 3)
 	  return (-1);
      level->size_x = ft_atoi(vals[0]);
      level->size_y = ft_atoi(vals[1]);
+     mods->player_angle = ft_atoi(vals[2]);
      free(line);
      free(vals[0]);
      free(vals[1]);
+     free(vals[2]);
      free(vals);
      level->size = level->size_x * level->size_y;
      level->map = (uint8_t *)malloc(sizeof(uint8_t) * level->size);
@@ -69,6 +71,11 @@ int32_t read_level_map(const char *fn, t_level *level, t_mods *mods)
 	       {
 		    mods->player_current_tile = x + (level->size_x * y);
 		    level->map[x + (level->size_x * y)] ^= MAP_HERO;
+	       }
+	       if (level->map[x + (level->size_x * y)] & MAP_ENEMY)
+	       {
+		       mods->enemy.current_tile = x + (level->size_x * y);
+		       level->map[x + (level->size_x * y)] ^= MAP_ENEMY;
 	       }
 	       ++x; 
 	  }

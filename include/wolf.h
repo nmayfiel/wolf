@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/27 00:06:16 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/27 01:10:00 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # define MAP_NONE	0
 # define MAP_WALL	1
 # define MAP_HERO	1 << 1
+# define MAP_ENEMY 1 << 2
 
 # define GS_SPLASH	1
 # define GS_TITLE	1 << 1
@@ -100,6 +101,17 @@ typedef struct s_gun
 //	double v;
 //}				t_hsv_colors;
 
+typedef struct s_enemy
+{
+	uint32_t current_tile;
+	t_f2 position_in_tile;
+	float velocity;
+	int32_t rotation_factor;
+	int32_t angle;
+	int32_t should_fire;
+	
+} t_enemy;
+
 typedef struct		s_mods
 {
 	uint32_t	player_current_tile;
@@ -110,6 +122,7 @@ typedef struct		s_mods
 	int32_t		player_angle;
 	int32_t		update;
 	int32_t should_fire;
+	t_enemy enemy;
 }				t_mods;
 
 typedef struct		s_image

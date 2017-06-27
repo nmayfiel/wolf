@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/14 21:01:02 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/27 00:05:37 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/27 01:48:07 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,7 @@ void	reset_key_changed(t_keys *keys)
 	keys->pause.changed = 0;
 	keys->right_alt.changed = 0;
 	keys->left_alt.changed = 0;
+	keys->fire.changed = 0;
 }
 
 int32_t			main_loop(t_window *win)

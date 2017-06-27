@@ -448,6 +448,14 @@ void draw_gun(int32_t shotgun_index, t_gun gun, t_image *img, t_image *src, int3
 	}
 }
 
+// ENEMY:
+// can we see him?
+// is there a wall between us and them?
+
+// the distance between you and the enemy is known, therefore, the size of the enemy is known.
+
+// calculate the size of the horizontal size of the enemy, then raycast against that
+
 void	render_game(t_window *win)
 {
 	static int32_t enemy_index = 0;
@@ -503,7 +511,7 @@ void	render_game(t_window *win)
 		update_player(&win->mods, win->frame_time);
 		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
-//		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
+		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
 		draw_gun(shotgun_index, win->gun, &win->disp, &win->shotgun_texture, win->disp.center.x - 146, win->disp.height - 396 + perturb_y);
 		put_minimap_to_image(&win->disp, &win->level, &win->mods);
 	}

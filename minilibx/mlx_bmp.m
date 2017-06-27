@@ -26,7 +26,7 @@ static void normalize_color_format_alpha(uint8_t *buffer, int size)
      }
 }
 
-void *png_file_to_image(mlx_ptr_t *xvar, char *filename, int *w, int *h)
+void *png_file_to_image(mlx_ptr_t *xvar, const char *filename, int *w, int *h)
 {
      mlx_img_list_t *img;
      uint8_t *data;

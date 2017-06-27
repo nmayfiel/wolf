@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/03/21 09:15:26 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/14 21:32:23 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/26 16:45:54 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <math.h>
 
 #include <stdio.h>
-
+/*
 t_image		get_splash(void *mlx)
 {
 	t_image splash;
@@ -32,7 +32,7 @@ t_image		get_splash(void *mlx)
 	splash.center.y = splash.height / 2;
 	return (splash);
 }
-
+*/
 t_image		get_splash_mask(void *mlx, int32_t width, int32_t height)
 {
 	t_image mask;

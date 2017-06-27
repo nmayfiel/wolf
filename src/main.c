@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 17:23:55 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/05/14 21:06:01 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/26 17:13:35 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,11 @@ static t_image	get_display_buffer(void *mlx, uint32_t width, uint32_t height)
 	return (display);
 }
 
-static t_image	get_title_texture(void *mlx)
+static t_image	get_texture(void *mlx, char *fn)
 {
      t_image image;
 
-     image.ptr = png_file_to_image(mlx, "assets/title_texture.png", &image.width, &image.height);
+     image.ptr = png_file_to_image(mlx, fn, &image.width, &image.height);
      image.data = (int8_t *)mlx_get_data_addr(image.ptr,
 					      &image.bpp,
 					      &image.size_line,
@@ -58,34 +58,6 @@ static t_image	get_title_texture(void *mlx)
      image.center.x = image.width / 2;
      image.center.y = image.height / 2;
      return (image);
-}
-
-static t_image	get_wall_texture(void *mlx)
-{
-	t_image image;
-
-	image.ptr = png_file_to_image(mlx, "assets/brick_wall.png", &image.width, &image.height);
-	image.data = (int8_t *)mlx_get_data_addr(image.ptr,
-						 &image.bpp,
-						 &image.size_line,
-						 &image.endian);
-	image.center.x = image.width / 2;
-	image.center.y = image.height / 2;
-	return (image);
-}
-
-static t_image get_enemy_texture(void *mlx)
-{
-	t_image image;
-
-	image.ptr = png_file_to_image(mlx, "assets/cacodemon.png", &image.width, &image.height);
-	image.data = (int8_t *)mlx_get_data_addr(image.ptr,
-						 &image.bpp,
-						 &image.size_line,
-						 &image.endian);
-	image.center.x = image.width / 2;
-	image.center.y = image.height / 2;
-	return (image);
 }
 
 static int32_t	**get_vertical_image_buffer_map(t_image *image)
@@ -116,10 +88,14 @@ static int32_t	**get_vertical_image_buffer_map(t_image *image)
 
 static void		init_window(t_window *win)
 {
+	char *file_path;
+
 	win->mlx = mlx_init();
 	win->win = mlx_new_window(win->mlx, WIN_WIDTH, WIN_HEIGHT, WIN_NAME);
 	win->disp = get_display_buffer(win->mlx, WIN_WIDTH, WIN_HEIGHT);
-	win->splash = get_splash(win->mlx);
+	file_path = ft_strdup("assets/splash.png");
+	win->splash = get_texture(win->mlx, file_path);
+	free(file_path);
 	win->splash_mask = get_splash_mask(win->mlx, win->splash.width, win->splash.height);
 	win->time = 0.0;
 	win->frame_time = 0.0;
@@ -134,9 +110,15 @@ static void		init_window(t_window *win)
 	win->mods = (t_mods){0, {64, 64}, 0, 0, 0, 0, 0};
 	win->vertical_buffer = get_vertical_image_buffer_map(&win->disp);
 	win->game_state = GS_SPLASH;
-	win->title_texture = get_title_texture(win->mlx);
-	win->wall_texture = get_wall_texture(win->mlx);
-	win->enemy_texture = get_enemy_texture(win->mlx);
+	file_path = ft_strdup("assets/title_texture.png");
+	win->title_texture = get_texture(win->mlx, file_path);
+	free(file_path);
+	file_path = ft_strdup("assets/brick_wall.png");
+	win->wall_texture = get_texture(win->mlx, file_path);
+	free(file_path);
+	file_path = ft_strdup("assets/cacodemon.png");
+	win->enemy_texture = get_texture(win->mlx, file_path);
+	free(file_path);
 }
 
 static void		print_welcome_msg(void)
@@ -156,7 +138,7 @@ int				main(int argc, char **argv)
 {
 	t_window	win;
 	
-//	sleep(10);
+	sleep(10);
 	if (argc != 1)
 		print_usage(argv[0]);
 	//if (parse_options(argc - 1, argv + 1, &win) == -1)

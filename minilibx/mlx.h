@@ -129,7 +129,7 @@ int	mlx_destroy_image(void *mlx_ptr, void *img_ptr);
 
 
 // ADDED BY nmayfiel 06/06/2017
-void *png_file_to_image(void *mlx_ptr, char *filename, int *width, int *height);
+void *png_file_to_image(void *mlx_ptr, const char *filename, int *width, int *height);
 
 /*
 **  generic hook system for all events, and minilibX functions that

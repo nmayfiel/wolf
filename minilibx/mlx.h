@@ -112,6 +112,11 @@ int	mlx_loop (void *mlx_ptr);
 **
 */
 
+/*
+** ADDED By nmayfiel 06/06/2017
+*/
+
+void *png_file_to_image(void *mlx_ptr, const char *filename, int *width, int *height);
 
 /*
 **  Usually asked...

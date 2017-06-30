@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/14 21:01:02 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/27 01:48:07 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/30 02:21:29 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,10 @@ int32_t		clamp_degrees(int32_t angle)
 
 // if up ended down and down did not -> do velocity
 
-static int32_t		handle_keys(t_keys *keys, t_mods *mods)
+static int32_t		handle_keys(t_keys *keys, t_mods *mods, uint32_t game_state)
 {
+// 
+//  && !(game_state & GS_PAUSE)
 	if (keys->up.ended_down && !keys->down.ended_down)
 		mods->player_velocity = 50.0;
 	else if (keys->up.changed)
@@ -48,7 +50,7 @@ static int32_t		handle_keys(t_keys *keys, t_mods *mods)
 		mods->player_velocity = -50.0;
 	else if (keys->down.changed)
 		mods->player_velocity = 0.0;
-
+	
 	if (keys->up_arrow.ended_down && !keys->down_arrow.ended_down)
 		mods->look_offset = 5.0;
 	else if (keys->up_arrow.changed)
@@ -80,6 +82,13 @@ static int32_t		handle_keys(t_keys *keys, t_mods *mods)
 		mods->should_fire = 0;
 	mods->player_angle = clamp_degrees(mods->player_angle);
 	mods->update = keys->up.ended_down | keys->down.ended_down | keys->left_alt.ended_down | keys->right_alt.ended_down | keys->left.ended_down | keys->right.ended_down | (keys->fire.ended_down && keys->fire.changed) | keys->up_arrow.ended_down | keys->down_arrow.ended_down;
+	if (game_state & GS_PAUSE)
+	{
+		mods->player_velocity = 0.0;
+		mods->look_offset = 0.0;
+		mods->player_strafe_velocity = 0.0;
+		mods->player_rotation_factor = 0.0;
+	}
 	return (mods->update);
 }
 
@@ -131,7 +140,7 @@ int32_t			main_loop(t_window *win)
 {
 	int32_t		needs_update;
 
-	needs_update = handle_keys(&win->keys, &win->mods);
+	needs_update = handle_keys(&win->keys, &win->mods, win->game_state);
 	if (win->keys.close.ended_down)
 		close_hook(win);
 	if ((win->game_state & GS_TITLE) && win->keys.enter.changed && win->keys.enter.ended_down)

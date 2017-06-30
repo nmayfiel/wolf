@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/27 01:10:00 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/30 00:05:54 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,8 @@ typedef struct		s_mods
 	float		player_strafe_velocity;
 	float		look_offset;
 	int32_t		look_angle;
+	float		vertical_velocity;
+	float		height_multiplier;
 	int32_t		player_rotation_factor;
 	int32_t		player_angle;
 	int32_t		update;

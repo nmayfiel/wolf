@@ -22,7 +22,7 @@ void put_minimap_to_image(t_image *img, t_level *level, t_mods *mods)
      while (i < level->size)
      {
 	  if (level->map[i] == MAP_WALL)
-	       draw_rectangle(img, (t_rect){x, y, width, height, 0x77000000});
+	       draw_rectangle(img, (t_rect){x, y, width, height, 0x99FFFFFF});
 	  else if (i == mods->player_current_tile)
 	       draw_rectangle(img, (t_rect){x, y, width, height, 0x000000FF});
 	  x += width;
@@ -56,7 +56,8 @@ void update_player(t_mods *mods, double time)
 	y += vel2 * cos(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
 	mods->player_position_in_tile.x += x * (time * 60);
 	mods->player_position_in_tile.y += y * (time * 60);
-	mods->look_angle += mods->look_offset;
+	//mods->look_angle += mods->look_offset;
+	mods->height_multiplier += (float)mods->look_offset / 100.0;
 }
 
 void check_collision(t_level *level, t_mods *mods)
@@ -178,16 +179,16 @@ float		clamp_degrees_f(float angle)
 	return (new_angle);
 }
 
+
 int32_t mul_color(int32_t color, double multiplier)
 {
 	uint8_t r;
 	uint8_t g;
 	uint8_t b;
 
-#pragma unused(multiplier)
 	r = (color & 0x000000FF) * multiplier;
-	g = ((color >> 8) & 0x000000FF) * multiplier;
-	b = ((color >> 16) & 0x000000FF) * multiplier;
+	g = ((color & 0x0000FF00) >> 8) * multiplier;
+	b = ((color & 0x00FF0000) >> 16) * multiplier;
 	return (r | (g << 8) | (b << 16));
 }
 
@@ -324,7 +325,8 @@ void	raycasting(t_window *win, t_level *level, t_mods *mods)
 			if (distance_multiplier < 0)
 				distance_multiplier = 0;
 			wall_height = ABS((float)1024 / (float)distance) * 864.0;
-			margin = (((768 - wall_height) / 2) + mods->look_angle) * 0.5;
+			// Jump multiplier should be a value between 0.5 and 1.5;
+			margin = (((768 - wall_height) / 2) * mods->height_multiplier) + mods->look_angle;
 			while (i < 768)
 			{
 				if (i < margin)

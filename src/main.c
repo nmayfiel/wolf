@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 17:23:55 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/27 01:15:09 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/06/30 00:14:03 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ static void		init_window(t_window *win)
 			     {0,0},{0,0},
 			     {0,0},{0,0},{0,0},{0,0}};
 	win->initialized = 0;
-	win->mods = (t_mods){0, {612, 612}, 0, 0, 0, 0, 0, 0, 0, 0, {0, {612, 612}, 0, 0, 0, 0}};
+	win->mods = (t_mods){0, {612, 612}, 0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, {0, {612, 612}, 0, 0, 0, 0}};
 	win->vertical_buffer = get_vertical_image_buffer_map(&win->disp);
 	win->game_state = GS_SPLASH;
 	file_path = ft_strdup("assets/title_texture.png");

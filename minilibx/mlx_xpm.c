@@ -273,15 +273,6 @@ void	*mlx_int_parse_xpm(mlx_ptr_t *xvar,void *info,int info_size,char *(*f)())
       XDestroyImage(clip_img);
     }
   */
-  /*
-  uint8_t *buffer = (uint8_t *)img->buffer;
-  for (int i = 0; i < width * height * 4; ++i)
-  {
-       printf("%u ", buffer[i]);
-       if ((i + 1) % 4 == 0)
-	    printf("\n");
-  }
-  */
   if (colors)
     free(colors);
   if (colors_direct)

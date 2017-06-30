@@ -117,6 +117,10 @@ int32_t		key_down(int32_t kc, t_keys *keys)
 		change_key_state(&keys->right_alt, is_down);
 	if (kc == kVK_Space)
 		change_key_state(&keys->fire, is_down);
+	if (kc == kVK_UpArrow)
+		change_key_state(&keys->up_arrow, is_down);
+	if (kc == kVK_DownArrow)
+		change_key_state(&keys->down_arrow, is_down);
 	return (0);
 }
 
@@ -145,5 +149,9 @@ int32_t		key_up(int32_t kc, t_keys *keys)
 		change_key_state(&keys->right_alt, is_down);
 	if (kc == kVK_Space)
 		change_key_state(&keys->fire, is_down);
+	if (kc == kVK_UpArrow)
+		change_key_state(&keys->up_arrow, is_down);
+	if (kc == kVK_DownArrow)
+		change_key_state(&keys->down_arrow, is_down);
 	return (0);
 }

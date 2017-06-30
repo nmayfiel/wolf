@@ -154,9 +154,9 @@ static void		init_window(t_window *win)
 			     {0,0},{0,0},
 			     {0,0},{0,0},
 			     {0,0},{0,0},
-			     {0,0},{0,0}};
+			     {0,0},{0,0},{0,0},{0,0}};
 	win->initialized = 0;
-	win->mods = (t_mods){0, {612, 612}, 0, 0, 0, 0, 0, 0, {0, {612, 612}, 0, 0, 0, 0}};
+	win->mods = (t_mods){0, {612, 612}, 0, 0, 0, 0, 0, 0, 0, 0, {0, {612, 612}, 0, 0, 0, 0}};
 	win->vertical_buffer = get_vertical_image_buffer_map(&win->disp);
 	win->game_state = GS_SPLASH;
 	file_path = ft_strdup("assets/title_texture.png");

@@ -56,6 +56,7 @@ void update_player(t_mods *mods, double time)
 	y += vel2 * cos(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
 	mods->player_position_in_tile.x += x * (time * 60);
 	mods->player_position_in_tile.y += y * (time * 60);
+	mods->look_angle += mods->look_offset;
 }
 
 void check_collision(t_level *level, t_mods *mods)
@@ -175,6 +176,19 @@ float		clamp_degrees_f(float angle)
 	if (new_angle < -180.0)
 		new_angle = 180.0 + (new_angle + 180.0);
 	return (new_angle);
+}
+
+int32_t mul_color(int32_t color, double multiplier)
+{
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+
+#pragma unused(multiplier)
+	r = (color & 0x000000FF) * multiplier;
+	g = ((color >> 8) & 0x000000FF) * multiplier;
+	b = ((color >> 16) & 0x000000FF) * multiplier;
+	return (r | (g << 8) | (b << 16));
 }
 
 
@@ -304,22 +318,25 @@ void	raycasting(t_window *win, t_level *level, t_mods *mods)
 		
 		if (distance != 0)
 		{
+//			printf("%f\n", (1024 / 2) / tan(30 / M_PI * 2.0));
 			i = 0;
-
+			double distance_multiplier = 1.0 - ABS(distance / 20480.0);
+			if (distance_multiplier < 0)
+				distance_multiplier = 0;
 			wall_height = ABS((float)1024 / (float)distance) * 864.0;
-			margin = (768 - wall_height) / 2;
+			margin = (((768 - wall_height) / 2) + mods->look_angle) * 0.5;
 			while (i < 768)
 			{
 				if (i < margin)
-					*(buff[(768 * step) + i]) = 0x0033333c;
+					*(buff[(768 * step) + i]) = 0x00000000;//0x0033333c;
 				else if (i < wall_height + margin)
 				{
 					int32_t place_in_texture = ((float)(i - margin) / wall_height) * 1024;
-					*(buff[(768 * step) + i]) = sample_texture[(1024 * place_in_texture_x) + place_in_texture];
+					*(buff[(768 * step) + i]) = mul_color(sample_texture[(1024 * place_in_texture_x) + place_in_texture], distance_multiplier);
 					//sample_texture
 				}
 				else
-					*(buff[(768 * step) + i]) = 0x00999999;
+					*(buff[(768 * step) + i]) = 0x00000000;//0x00999999;
 				++i;
 			}
 		}
@@ -473,7 +490,7 @@ void	render_game(t_window *win)
 		win->gun.default_anim = 0;
 		win->gun.shooting_anim_time = win->time;
 	}
-	if (win->time - time > 0.07)
+	if (win->time - time > 0.125)
 	{
 		++enemy_index;
 		time = win->time;
@@ -511,7 +528,7 @@ void	render_game(t_window *win)
 		update_player(&win->mods, win->frame_time);
 		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
-		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
+//		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
 		draw_gun(shotgun_index, win->gun, &win->disp, &win->shotgun_texture, win->disp.center.x - 146, win->disp.height - 396 + perturb_y);
 		put_minimap_to_image(&win->disp, &win->level, &win->mods);
 	}

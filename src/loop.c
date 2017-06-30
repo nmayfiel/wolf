@@ -36,29 +36,41 @@ int32_t		clamp_degrees(int32_t angle)
 	return (new_angle);
 }
 
+// if up ended down and down did not -> do velocity
+
 static int32_t		handle_keys(t_keys *keys, t_mods *mods)
 {
-	if (keys->up.ended_down)
+	if (keys->up.ended_down && !keys->down.ended_down)
 		mods->player_velocity = 50.0;
 	else if (keys->up.changed)
 		mods->player_velocity = 0.0;
-	if (keys->down.ended_down)
+	if (keys->down.ended_down && !keys->up.ended_down)
 		mods->player_velocity = -50.0;
 	else if (keys->down.changed)
 		mods->player_velocity = 0.0;
-	if (keys->left_alt.ended_down)
+
+	if (keys->up_arrow.ended_down && !keys->down_arrow.ended_down)
+		mods->look_offset = 5.0;
+	else if (keys->up_arrow.changed)
+		mods->look_offset = 0.0;
+	if (keys->down_arrow.ended_down && !keys->up_arrow.ended_down)
+		mods->look_offset = -5.0;
+	else if (keys->down_arrow.changed)
+		mods->look_offset = 0.0;
+	
+	if (keys->left_alt.ended_down && !keys->right_alt.ended_down)
 		mods->player_strafe_velocity = 20.0;
 	else if (keys->left_alt.changed)
 		mods->player_strafe_velocity = 0.0;
-	if (keys->right_alt.ended_down)
+	if (keys->right_alt.ended_down && !keys->left_alt.ended_down)
 		mods->player_strafe_velocity = -20.0;
 	else if (keys->right_alt.changed)
 		mods->player_strafe_velocity = 0.0;
-	if (keys->left.ended_down)
+	if (keys->left.ended_down && !keys->right.ended_down)
 		mods->player_rotation_factor = -4;
 	else if (keys->left.changed)
 		mods->player_rotation_factor = 0;
-	if (keys->right.ended_down)
+	if (keys->right.ended_down && !keys->left.ended_down)
 		mods->player_rotation_factor = 4;
 	else if (keys->right.changed)
 		mods->player_rotation_factor = 0;
@@ -67,7 +79,7 @@ static int32_t		handle_keys(t_keys *keys, t_mods *mods)
 	else
 		mods->should_fire = 0;
 	mods->player_angle = clamp_degrees(mods->player_angle);
-	mods->update = keys->up.ended_down | keys->down.ended_down | keys->left_alt.ended_down | keys->right_alt.ended_down | keys->left.ended_down | keys->right.ended_down;
+	mods->update = keys->up.ended_down | keys->down.ended_down | keys->left_alt.ended_down | keys->right_alt.ended_down | keys->left.ended_down | keys->right.ended_down | (keys->fire.ended_down && keys->fire.changed) | keys->up_arrow.ended_down | keys->down_arrow.ended_down;
 	return (mods->update);
 }
 
@@ -111,6 +123,8 @@ void	reset_key_changed(t_keys *keys)
 	keys->right_alt.changed = 0;
 	keys->left_alt.changed = 0;
 	keys->fire.changed = 0;
+	keys->up_arrow.changed = 0;
+	keys->down_arrow.changed = 0;
 }
 
 int32_t			main_loop(t_window *win)
@@ -134,6 +148,8 @@ int32_t			main_loop(t_window *win)
 		win->mods.update = 1;
 	}
 	update_time(win);
+	if (win->gun.shooting_anim)
+		needs_update = 1;
 	if (win->initialized == 1)
 	{
 		if (win->game_state & GS_SPLASH)
@@ -141,7 +157,7 @@ int32_t			main_loop(t_window *win)
 			win->game_state = GS_TITLE;
 /*		else*/ if (win->game_state & GS_TITLE)
 			render_title(win);
-		else if ((win->game_state & (GS_NORME | GS_PAUSE)) /*&& (needs_update || win->mods.update)*/)
+		else if ((win->game_state & (GS_NORME | GS_PAUSE)) && (needs_update || win->mods.update))
 			render_game(win);
 		win->mods.update = 0;
 	}

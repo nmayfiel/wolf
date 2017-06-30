@@ -46,6 +46,8 @@ typedef struct		s_keys
 	t_key	close;
 	t_key	up;
 	t_key	down;
+	t_key	up_arrow;
+	t_key	down_arrow;
 	t_key	left;
 	t_key	right;
 	t_key	left_alt;
@@ -101,16 +103,16 @@ typedef struct s_gun
 //	double v;
 //}				t_hsv_colors;
 
-typedef struct s_enemy
+typedef struct		s_enemy
 {
-	uint32_t current_tile;
-	t_f2 position_in_tile;
-	float velocity;
-	int32_t rotation_factor;
-	int32_t angle;
-	int32_t should_fire;
+	uint32_t	current_tile;
+	t_f2		position_in_tile;
+	float		velocity;
+	int32_t		rotation_factor;
+	int32_t		angle;
+	int32_t		should_fire;
 	
-} t_enemy;
+}				t_enemy;
 
 typedef struct		s_mods
 {
@@ -118,11 +120,13 @@ typedef struct		s_mods
 	t_f2		player_position_in_tile;
 	float		player_velocity;
 	float		player_strafe_velocity;
+	float		look_offset;
+	int32_t		look_angle;
 	int32_t		player_rotation_factor;
 	int32_t		player_angle;
 	int32_t		update;
-	int32_t should_fire;
-	t_enemy enemy;
+	int32_t		should_fire;
+	t_enemy		enemy;
 }				t_mods;
 
 typedef struct		s_image

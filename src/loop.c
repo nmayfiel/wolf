@@ -52,11 +52,11 @@ static int32_t		handle_keys(t_keys *keys, t_mods *mods, uint32_t game_state)
 		mods->player_velocity = 0.0;
 	
 	if (keys->up_arrow.ended_down && !keys->down_arrow.ended_down)
-		mods->look_offset = 5.0;
+		mods->look_offset = 20.0;
 	else if (keys->up_arrow.changed)
 		mods->look_offset = 0.0;
 	if (keys->down_arrow.ended_down && !keys->up_arrow.ended_down)
-		mods->look_offset = -5.0;
+		mods->look_offset = -20.0;
 	else if (keys->down_arrow.changed)
 		mods->look_offset = 0.0;
 	

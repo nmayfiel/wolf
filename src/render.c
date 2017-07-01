@@ -16,19 +16,21 @@ void put_minimap_to_image(t_image *img, t_level *level, t_mods *mods)
 
      height = 10;
      width = 10;
-     x = (-(mods->player_current_tile % level->size_x)) * width + (level->size_x * width) / 2;
-     y = (-(mods->player_current_tile / level->size_x)) * height + (level->size_y * height) / 2;
+     x = 0;
+     y = 0;
+     x = ((-(mods->player_current_tile % level->size_x)) * width) + img->width / 2;
+     y = ((-(mods->player_current_tile / level->size_x)) * height) + img->height / 2;
      i = 0;
      while (i < level->size)
      {
 	  if (level->map[i] == MAP_WALL)
 	       draw_rectangle(img, (t_rect){x, y, width, height, 0x99FFFFFF});
 	  else if (i == mods->player_current_tile)
-	       draw_rectangle(img, (t_rect){x, y, width, height, 0x000000FF});
+	       draw_rectangle(img, (t_rect){x, y, width, height, 0xAAFF0000});
 	  x += width;
 	  if ((i + 1) % level->size_x == 0)
 	  {
-	       x = (-(mods->player_current_tile % level->size_x)) * width + (level->size_x * width) / 2;
+	       x = (-(mods->player_current_tile % level->size_x)) * width + img->width /2;
 	       y += height;
 	  }
 	  ++i;
@@ -56,8 +58,8 @@ void update_player(t_mods *mods, double time)
 	y += vel2 * cos(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
 	mods->player_position_in_tile.x += x * (time * 60);
 	mods->player_position_in_tile.y += y * (time * 60);
-	//mods->look_angle += mods->look_offset;
-	mods->height_multiplier += (float)mods->look_offset / 100.0;
+	mods->look_angle += mods->look_offset;
+	//mods->height_multiplier += (float)mods->look_offset / 100.0;
 }
 
 void check_collision(t_level *level, t_mods *mods)
@@ -192,6 +194,12 @@ int32_t mul_color(int32_t color, double multiplier)
 	return (r | (g << 8) | (b << 16));
 }
 
+
+// ENEMIES:
+// Can you see him?
+// Draw a line that is the size of the enemy, raycast against it
+// So instead of following the lines of the tile map, follow a new line that is perpendicular to your view,
+// raycast for all of the walls, then enemies
 
 void	raycasting(t_window *win, t_level *level, t_mods *mods)
 {
@@ -361,29 +369,6 @@ void	raycasting(t_window *win, t_level *level, t_mods *mods)
 	}
 }
 
-/*
-** Rendering enemies:
-** 	* find the difference between your rotations to determine which angle
-	the enemy should be
-
-	* the images will need to be displayed forward and backward
-
-	* You can easily determine the size of the enemy based on the distance
-
-	* You need a function to put an image to another image in order to scale it.
-
-	* You will need to calculate where on the floor the enemy should show up
-	* in addition, you need to calculate where the horizon line is in order
-	* to display where your walls are, and how much padding to put on the top
-	* and bottom of it, rather than just splitting it in half.
-
-*/
-
-// cacodemon has 34 images
-// forward or backward (1 or -1)
-// top left corner: 308, 11
-// sample size: 67, 67
-
 extern t_tx_sample enemies[34];
 
 void	draw_enemy_at_point(int32_t enemy_index, t_image *img, t_image *src, int32_t x, int32_t y)
@@ -527,16 +512,20 @@ void	render_game(t_window *win)
 	if (win->game_state & GS_NORME)
 	{
 		clear_image(&win->disp, 0x00000000);
+		clear_image(&win->minimap, 0xFF000000);
 		update_player(&win->mods, win->frame_time);
 		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
 //		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
 		draw_gun(shotgun_index, win->gun, &win->disp, &win->shotgun_texture, win->disp.center.x - 146, win->disp.height - 396 + perturb_y);
-		put_minimap_to_image(&win->disp, &win->level, &win->mods);
+		put_minimap_to_image(&win->minimap, &win->level, &win->mods);
 	}
 	mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
 					win->center.x - win->disp.center.x,
 					win->center.y - win->disp.center.y);
+	mlx_put_image_to_window(win->mlx, win->win, win->minimap.ptr,
+				10,
+				10);
 	//mlx_put_image_to_window(win->mlx, win->win, win->shotgun_texture.ptr,
 	//			win->center.x - win->shotgun_texture.center.x,
 	//			win->center.y - win->shotgun_texture.center.y);

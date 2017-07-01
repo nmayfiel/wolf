@@ -159,6 +159,7 @@ static void		init_window(t_window *win)
 	win->mods = (t_mods){0, {612, 612}, 0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, {0, {612, 612}, 0, 0, 0, 0}};
 	win->vertical_buffer = get_vertical_image_buffer_map(&win->disp);
 	win->game_state = GS_SPLASH;
+	win->minimap = get_image_of_size(win->mlx, 200, 150);
 	file_path = ft_strdup("assets/title_texture.png");
 	win->title_texture = get_texture(win->mlx, file_path);
 	free(file_path);

@@ -177,6 +177,7 @@ typedef struct		s_window
 	t_image		enemy_texture;
 	t_image		wall_texture;
 	t_image		shotgun_texture;
+	t_image		minimap;
 	t_gun gun;
 	t_point		center;
 	t_keys		keys;

@@ -21,9 +21,9 @@ void		render_splash(t_window *win)
 {
 	uint32_t	*splash;
 	uint32_t	*mask;
-	size_t	i;
-	t_f2 uv;
-	float time;
+	size_t		i;
+	t_f2		uv;
+	float		time;
 	
 	i = 0;
 	mlx_clear_window(win->mlx, win->win);
@@ -32,14 +32,15 @@ void		render_splash(t_window *win)
 	mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
 				win->center.x - win->disp.center.x,
 				win->center.y - win->disp.center.y);
-	if (win->time >= 2 && win->time < 5.5)
+	time = win->clock.time;
+	if (time >= 2 && time < 5.5)
 	{
 		splash = (uint32_t *)win->splash.data;
 		while (i < win->splash.size_line / sizeof(int32_t) * win->splash.height)
 		{
 			uv.x = (i % win->splash.width) / (float)win->splash.width;
 			uv.y = (i / win->splash.width) / (float)win->splash.height;
-			splash[i] = (uint8_t)ABS((int)(sin(win->time) * 255)) |
+			splash[i] = (uint8_t)ABS((int)(sin(time) * 255)) |
 				((uint8_t)(uv.y * 255) << 8) |
 				((uint8_t)(uv.x * 255) << 16) |
 				(splash[i] & 0xFF000000);
@@ -50,8 +51,7 @@ void		render_splash(t_window *win)
 					win->center.y - win->splash.center.y);
 		i = 0;
 		mask = (uint32_t *)win->splash_mask.data;
-		time = win->time;
-		if (win->time < 4.5)
+		if (time < 4.5)
 		{
 			time -= 2.0;
 			if (time * 2.0 > 1.0)
@@ -77,7 +77,7 @@ void		render_splash(t_window *win)
 					win->center.x - win->splash_mask.center.x,
 					win->center.y - win->splash_mask.center.y);
 	}
-	else if (win->time >= 5.5)
+	else if (time >= 5.5)
 	{
 		win->game_state ^= GS_SPLASH;
 		win->game_state |= GS_TITLE;		

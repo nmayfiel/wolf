@@ -140,21 +140,22 @@ static void		init_window(t_window *win)
 
 	win->mlx = mlx_init();
 	win->win = mlx_new_window(win->mlx, WIN_WIDTH, WIN_HEIGHT, WIN_NAME);
+	win->clock = (t_clock){0.0, 0.0, 0};
 	win->disp = get_image_of_size(win->mlx, WIN_WIDTH, WIN_HEIGHT);
 	file_path = ft_strdup("assets/splash.png");
 	win->splash = get_texture(win->mlx, file_path);
 	free(file_path);
 	win->splash_mask = get_image_of_size(win->mlx, WIN_WIDTH, WIN_HEIGHT);
 	clear_image(&win->splash_mask, 0x00FFFFFF);
-	win->time = 0.0;
-	win->frame_time = 0.0;
+	//win->time = 0.0;
+	//win->frame_time = 0.0;
 	win->center.x = (WIN_WIDTH / 2);
 	win->center.y = (WIN_HEIGHT / 2);
 	win->keys = (t_keys){{0,0},{0,0},
 			     {0,0},{0,0},
 			     {0,0},{0,0},
 			     {0,0},{0,0},
-			     {0,0},{0,0},{0,0},{0,0}};
+			     {0,0},{0,0},{0,0}};
 	win->initialized = 0;
 	win->mods = (t_mods){0, {612, 612}, 0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, {0, {612, 612}, 0, 0, 0, 0}};
 	win->vertical_buffer = get_vertical_image_buffer_map(&win->disp);
@@ -205,6 +206,8 @@ int				main(int argc, char **argv)
 	print_welcome_msg();
 	mlx_hook(win.win, 2, 0, key_down, &win.keys);
 	mlx_hook(win.win, 3, 0, key_up, &win.keys);
+	mlx_hook(win.win, 4, 0, mouse_hook, &win);
+	mlx_hook(win.win, 6, 0, mouse_moved, &win);
 	mlx_hook(win.win, 12, 0, expose_hook, &win);
 	mlx_hook(win.win, 17, 0, close_hook, &win);
 	mlx_loop_hook(win.mlx, main_loop, &win);

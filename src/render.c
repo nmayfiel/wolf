@@ -42,7 +42,7 @@ void put_minimap_to_image(t_image *img, t_level *level, t_mods *mods)
 ** degrees = radians * 180.0 / M_PI;
 */
 
-void update_player(t_mods *mods, double time)
+void update_player(t_mods *mods, t_mouse mouse, double time)
 {
 	float x;
 	float y;
@@ -51,7 +51,8 @@ void update_player(t_mods *mods, double time)
 
 	vel = mods->player_velocity;
 	vel2 = mods->player_strafe_velocity;
-	mods->player_angle += mods->player_rotation_factor * (time * 60);
+//	mods->player_angle += mods->player_rotation_factor * (time * 60);
+	mods->player_angle += mouse.location.x * 4.0 * (time * 60);
 	x = vel * sin((float)mods->player_angle * M_PI / 180.0);
 	y = vel * cos((float)mods->player_angle * M_PI / 180.0);
 	x += vel2 * sin(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
@@ -244,7 +245,7 @@ void	raycasting(t_window *win, t_level *level, t_mods *mods)
 	x = ((col) * 1024) + mods->player_position_in_tile.x;
 	y = ((row) * 1024) + 1023 - mods->player_position_in_tile.y;
 
-	angle = (float)clamp_degrees(mods->player_angle -  30);
+	angle = clamp_degrees_f(mods->player_angle - 30.0);
 	angle_step = 60.0 / 1024.0;
 	step = 0;
 	while (step < 1024)
@@ -468,35 +469,35 @@ void	render_game(t_window *win)
 	int32_t perturb_y;
 
 	if (win->mods.player_velocity != 0 || win->mods.player_strafe_velocity != 0)
-		perturb_y = cos(5 * M_PI * win->time) * 4;
+		perturb_y = cos(5 * M_PI * win->clock.time) * 4;
 	else
 		perturb_y = 0;
 	if (win->mods.should_fire && win->gun.shooting_anim == 0)
 	{
 		win->gun.shooting_anim = 1;
 		win->gun.default_anim = 0;
-		win->gun.shooting_anim_time = win->time;
+		win->gun.shooting_anim_time = win->clock.time;
 	}
-	if (win->time - time > 0.125)
+	if (win->clock.time - time > 0.125)
 	{
 		++enemy_index;
-		time = win->time;
+		time = win->clock.time;
 		if (enemy_index > 7)
 			enemy_index = 0;
 	}
 	if (win->gun.default_anim)
 	{
-		if (win->time - win->gun.default_start_time > win->gun.default_time_per_frame)
+		if (win->clock.time - win->gun.default_start_time > win->gun.default_time_per_frame)
 		{
 			++shotgun_index;
 			if (shotgun_index > win->gun.default_anim_end_frame)
 				shotgun_index = win->gun.default_anim_start_frame;
-			win->gun.default_start_time = win->time;
+			win->gun.default_start_time = win->clock.time;
 		}
 	}
 	else if (win->gun.shooting_anim)
 	{
-		if (win->time - win->gun.shooting_anim_time > win->gun.shooting_anim_time_per_frame)
+		if (win->clock.time - win->gun.shooting_anim_time > win->gun.shooting_anim_time_per_frame)
 		{
 			++shotgun_index;
 			if (shotgun_index > win->gun.shooting_anim_frame_end)
@@ -505,7 +506,7 @@ void	render_game(t_window *win)
 				win->gun.default_anim = 1;
 				win->gun.shooting_anim = 0;
 			}
-			win->gun.shooting_anim_time = win->time;
+			win->gun.shooting_anim_time = win->clock.time;
 		}
 	}
 	mlx_clear_window(win->mlx, win->win);
@@ -513,7 +514,7 @@ void	render_game(t_window *win)
 	{
 		clear_image(&win->disp, 0x00000000);
 		clear_image(&win->minimap, 0xFF000000);
-		update_player(&win->mods, win->frame_time);
+		update_player(&win->mods, win->mouse, win->clock.last_frame_time);
 		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
 //		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);

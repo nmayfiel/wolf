@@ -345,6 +345,14 @@ int get_mouse_button(NSEventType eventtype)
     {
       NSUInteger windowStyle = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask;
 
+/*
+** Added by nmayfiel 6/30/2017
+*/
+      [NSCursor hide];
+/*
+** End Added by nmayfiel 6/30/2017
+*/
+      
       win = [[NSWindowEvent alloc] initWithContentRect:rect
 				   styleMask:windowStyle
 				   backing:NSBackingStoreBuffered   // NSBackingStoreNonretained

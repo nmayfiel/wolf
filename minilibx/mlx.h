@@ -1,9 +1,9 @@
 /*
-** mlx.h for MinilibX in 
-** 
+** mlx.h for MinilibX in
+**
 ** Made by Charlie Root
 ** Login   <ol@staff.42.fr>
-** 
+**
 ** Started on  Mon Jul 31 16:37:50 2000 Charlie Root
 ** Last update Tue Oct 01 16:23:28 2014 Olivier Crouzet
 */
@@ -46,7 +46,8 @@
 
 #define	MLX_H
 
-
+#include <stdint.h>
+	
 void	*mlx_init();
 /*
 **  needed before everything else.
@@ -76,6 +77,10 @@ int	mlx_pixel_put(void *mlx_ptr, void *win_ptr, int x, int y, int color);
 */
 
 void	*mlx_new_image(void *mlx_ptr,int width,int height);
+// Added by nmayfiel
+void	*mlx_new_scaled_image(void *mlx_ptr, int width, int height, float xscale, float yscale);
+// end added
+
 /*
 **  return void *0 if failed
 */
@@ -87,6 +92,11 @@ char	*mlx_get_data_addr(void *img_ptr, int *bits_per_pixel,
 */
 int	mlx_put_image_to_window(void *mlx_ptr, void *win_ptr, void *img_ptr,
 				int x, int y);
+// Added by nmayfiel
+int	nix_put_image_to_center(void *mlx_ptr, void *win_ptr, void *img_ptr, float xscale, float yscale, int winWidth, int winHeight);
+int	nix_put_image_to_window(void *mlx_ptr, void *win_ptr, void *img_ptr,
+				int x, int y, float xscale, float yscale);
+// end added
 unsigned int	mlx_get_color_value(void *mlx_ptr, int color);
 
 
@@ -94,14 +104,28 @@ unsigned int	mlx_get_color_value(void *mlx_ptr, int color);
 ** dealing with Events
 */
 
+// NOTE(nick): The following prototypes were changed to include parameters in the
+// function pointer.
+	
 int	mlx_mouse_hook (void *win_ptr, int (*funct_ptr)(), void *param);
 int	mlx_key_hook (void *win_ptr, int (*funct_ptr)(), void *param);
-int	mlx_expose_hook (void *win_ptr, int (*funct_ptr)(), void *param);
 
+	
+int	mlx_expose_hook (void *win_ptr, int (*funct_ptr)(), void *param);
 int	mlx_loop_hook (void *mlx_ptr, int (*funct_ptr)(), void *param);
 int	mlx_loop (void *mlx_ptr);
 
+// Added by nmayfiel 7/11/2017
+int	mlx_key_down(void *win_ptr, int (*funct_ptr)(), void *param);
+int	mlx_key_up(void *win_ptr, int (*funct_ptr)(), void *param);
+int	mlx_mouse_click_hook(void *win_ptr, int (*funct_ptr)(), void *param);
+int	mlx_mouse_moved_hook(void *win_ptr, int (*funct_ptr)(), void *param);
+int	mlx_close_hook(void *win_ptr, int (*funct_ptr)(), void *param);
+int	mlx_resize_hook(void *win_ptr, int (*funct_ptr)(), void *param);
+// End added by nmayfiel
 
+
+	
 /*
 **  hook funct are called as follow :
 **
@@ -117,7 +141,9 @@ int	mlx_loop (void *mlx_ptr);
 */
 
 void *png_file_to_image(void *mlx_ptr, const char *filename, int *width, int *height);
+void *png_data_to_image(void *mlx_ptr, const uint8_t *data, uint32_t size, int *w, int *h);
 
+	
 /*
 **  Usually asked...
 */

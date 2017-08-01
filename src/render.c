@@ -517,7 +517,7 @@ void	render_game(t_window *win)
 		update_player(&win->mods, win->mouse, win->clock.last_frame_time);
 		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
-//		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
+		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
 		draw_gun(shotgun_index, win->gun, &win->disp, &win->shotgun_texture, win->disp.center.x - 146, win->disp.height - 396 + perturb_y);
 		put_minimap_to_image(&win->minimap, &win->level, &win->mods);
 	}

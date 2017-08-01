@@ -170,4 +170,8 @@ int	mlx_do_key_autorepeatoff(void *mlx_ptr);
 int	mlx_do_key_autorepeaton(void *mlx_ptr);
 int	mlx_do_sync(void *mlx_ptr);
 
+int	nx_mouse_set_cursor_association(int tf);
+int	nx_display_cursor(int tf);
+
+
 #endif /* MLX_H */

@@ -207,7 +207,8 @@ int get_mouse_button(NSEventType eventtype)
 {
   NSPoint thepoint;
 
-  thepoint = [theEvent locationInWindow];
+  thepoint.x = [theEvent deltaX];
+  thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
     event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
 }
@@ -217,7 +218,9 @@ int get_mouse_button(NSEventType eventtype)
 {
   NSPoint thepoint;
 
-  thepoint = [theEvent locationInWindow];
+//  thepoint = [theEvent locationInWindow];
+  thepoint.x = [theEvent deltaX];
+  thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
     event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
 }
@@ -227,7 +230,9 @@ int get_mouse_button(NSEventType eventtype)
 {
   NSPoint thepoint;
 
-  thepoint = [theEvent locationInWindow];
+//  thepoint = [theEvent locationInWindow];
+  thepoint.x = [theEvent deltaX];
+  thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
     event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
 }
@@ -237,7 +242,9 @@ int get_mouse_button(NSEventType eventtype)
 {
   NSPoint thepoint;
 
-  thepoint = [theEvent locationInWindow];
+//  thepoint = [theEvent locationInWindow];
+  thepoint.x = [theEvent deltaX];
+  thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
     event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
 }
@@ -354,6 +361,8 @@ int get_mouse_button(NSEventType eventtype)
       //glFlush();
 
       [pixFmt release];
+//      CGAssociateMouseAndMouseCursorPosition(false);
+//      CGDisplayHideCursor(true);
     }
   return (self);
 }
@@ -803,4 +812,23 @@ int     mlx_destroy_window(mlx_ptr_t *mlx_ptr, mlx_win_list_t *win_to_del)
 
   mlx_do_sync(mlx_ptr);
   return (0);
+}
+
+int nx_mouse_set_cursor_association(int tf)
+{
+	CGAssociateMouseAndMouseCursorPosition(tf);
+	return (true);
+}
+
+int nx_display_cursor(int tf)
+{
+	if (tf == true)
+	{
+		CGDisplayShowCursor(true);
+	}
+	else
+	{
+		CGDisplayHideCursor(false);
+	}
+	return (true);
 }

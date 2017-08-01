@@ -52,7 +52,8 @@ void update_player(t_mods *mods, t_mouse mouse, double time)
 	vel = mods->player_velocity;
 	vel2 = mods->player_strafe_velocity;
 //	mods->player_angle += mods->player_rotation_factor * (time * 60);
-	mods->player_angle += mouse.location.x * 4.0 * (time * 60);
+	mods->player_angle += (mouse.diff.x) * (time * 60) /* * 4.0 * (time * 60)*/;
+	//mods->player_angle += mouse.location.x * 4.0 * (time * 60);
 	x = vel * sin((float)mods->player_angle * M_PI / 180.0);
 	y = vel * cos((float)mods->player_angle * M_PI / 180.0);
 	x += vel2 * sin(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
@@ -517,7 +518,7 @@ void	render_game(t_window *win)
 		update_player(&win->mods, win->mouse, win->clock.last_frame_time);
 		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
-		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
+//		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
 		draw_gun(shotgun_index, win->gun, &win->disp, &win->shotgun_texture, win->disp.center.x - 146, win->disp.height - 396 + perturb_y);
 		put_minimap_to_image(&win->minimap, &win->level, &win->mods);
 	}

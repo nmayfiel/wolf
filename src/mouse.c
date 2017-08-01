@@ -6,20 +6,13 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/14 21:16:08 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/14 01:47:58 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/01 02:26:37 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "wolf.h"
 #include <stdio.h>
 
-void		toggle_bool(int8_t *b)
-{
-	if (*b == 1)
-		*b = 0;
-	else
-		*b = 1;
-}
 /*
 1 is left click
 2 is right click
@@ -35,8 +28,8 @@ int32_t		mouse_hook(int button, int x, int y, t_window *win)
 		mouse->click1 = 1;
 	else if (button == 2)
 		mouse->click2 = 1;
-	mouse->location.x = ((double)x / (double)win->disp.width) - 0.5;
-	mouse->location.y = ((double)y / (double)win->disp.height) - 0.5;
+	mouse->location.x = x;
+	mouse->location.y = y;
 	win->mods.update = 1;
 	return (0);
 }
@@ -44,10 +37,17 @@ int32_t		mouse_hook(int button, int x, int y, t_window *win)
 int32_t		mouse_moved(int x, int y, t_window *win)
 {
 	t_mouse *mouse;
+	//t_double2 previous_location;
+
+	// Need to get the mouse diff x in order to see which direction we should push the rotation of the player.
 
 	mouse = &win->mouse;
-	mouse->location.x = ((double)x / (double)win->disp.width) - 0.5;
-	mouse->location.y = ((double)y / (double)win->disp.height) - 0.5;
+	mouse->diff.x = x;
+	mouse->diff.y = y;
+//	mouse->location.x = ((double)x / (double)win->disp.width) - 0.5;
+	//mouse->diff.x = mouse->location.x -  previous_location.x;
+//	mouse->location.y = ((double)y / (double)win->disp.height) - 0.5;
+	//mouse->diff.y = mouse->location.y -  previous_location.y;
 	win->mods.update = 1;
 	return (0);
 }

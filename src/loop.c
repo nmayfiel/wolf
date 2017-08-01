@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/14 21:01:02 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/30 02:21:29 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/01 02:20:40 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,8 @@ void	reset_input(t_keys *keys, t_mouse *mouse)
 	keys->down_arrow.changed = 0;
 	mouse->click1 = 0;
 	mouse->click2 = 0;
-	
+	mouse->diff.x = 0.0;
+	mouse->diff.y = 0.0;
 }
 /*
 void			update_time(t_window *win)
@@ -118,9 +119,21 @@ static void		handle_input(t_window *win)
 	if (keys->pause.ended_down && keys->pause.changed)
 	{
 		if (*state & GS_PAUSE)
+		{
 			*state = GS_NORME;
+			nx_mouse_set_cursor_association(0);
+			nx_display_cursor(0);
+			//CGAssociateMouseAndMouseCursorPosition(true);
+			//CGDisplayShowCursor(true);
+		}
 		else if (*state & GS_NORME)
+		{
 			*state = GS_PAUSE;
+			nx_mouse_set_cursor_association(1);
+			nx_display_cursor(1);
+//CGAssociateMouseAndMouseCursorPosition(false);
+			//CGDisplayHideCursor(true);
+		}
 		mods->update = 1;
 	}
 	if (keys->up.ended_down && !keys->down.ended_down)

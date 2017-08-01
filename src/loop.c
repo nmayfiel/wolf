@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/14 21:01:02 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/08/01 02:20:40 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/01 04:04:08 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,16 +121,16 @@ static void		handle_input(t_window *win)
 		if (*state & GS_PAUSE)
 		{
 			*state = GS_NORME;
-			nx_mouse_set_cursor_association(0);
-			nx_display_cursor(0);
+			nx_mouse_set_cursor_association(win->win, 0);
+			nx_display_cursor(win->win, 0);
 			//CGAssociateMouseAndMouseCursorPosition(true);
 			//CGDisplayShowCursor(true);
 		}
 		else if (*state & GS_NORME)
 		{
 			*state = GS_PAUSE;
-			nx_mouse_set_cursor_association(1);
-			nx_display_cursor(1);
+			nx_mouse_set_cursor_association(win->win, 1);
+			nx_display_cursor(win->win, 1);
 //CGAssociateMouseAndMouseCursorPosition(false);
 			//CGDisplayHideCursor(true);
 		}

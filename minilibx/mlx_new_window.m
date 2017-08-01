@@ -210,7 +210,7 @@ int get_mouse_button(NSEventType eventtype)
   thepoint.x = [theEvent deltaX];
   thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
-    event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
+	  event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
 }
 
 
@@ -222,7 +222,7 @@ int get_mouse_button(NSEventType eventtype)
   thepoint.x = [theEvent deltaX];
   thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
-    event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
+	  event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
 }
 
 
@@ -234,7 +234,7 @@ int get_mouse_button(NSEventType eventtype)
   thepoint.x = [theEvent deltaX];
   thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
-    event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
+	  event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
 }
 
 
@@ -246,7 +246,7 @@ int get_mouse_button(NSEventType eventtype)
   thepoint.x = [theEvent deltaX];
   thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
-    event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
+	  event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
 }
 
 
@@ -336,7 +336,7 @@ int get_mouse_button(NSEventType eventtype)
       [win setContentView:self];
       // Added by nmayfiel
       [[win contentView] setAutoresizesSubviews: YES];
-      [win setMinSize: NSMakeSize(10, 10)];
+      [win setMinSize: NSMakeSize(512, 512)];
       // End added
       [win setTitle:title];
       [win setKeyRepeat:1];
@@ -656,6 +656,26 @@ int get_mouse_button(NSEventType eventtype)
 }
 // end added
 
+- (void) nx_mouse_set_cursor_association: (int) tf
+{
+	CGAssociateMouseAndMouseCursorPosition(tf);
+//	if (tf == false)
+//	{
+//		CGPoint newCursorPosition = CGPointMake(NSMidX([self frame]), NSMidY([self frame]));
+		//NSRect theFrame = [self frame];
+		//newCursorPosition = theFrame.origin;
+//		CGWarpMouseCursorPosition(newCursorPosition);
+//	}	
+}
+
+- (void) nx_display_cursor: (int) tf
+{
+	if (tf == true)
+		CGDisplayShowCursor(true);
+	else
+		CGDisplayHideCursor(false);
+}
+
 
 @end
 
@@ -677,7 +697,9 @@ void *mlx_new_window(mlx_ptr_t *mlx_ptr, int size_x, int size_y, char *title)
   mlx_ptr->win_list = newwin;
   
 
-  NSRect windowRect = NSMakeRect(100, 100, size_x, size_y);
+  NSPoint pos = CGPointMake(([[NSScreen mainScreen] frame].size.width / 2.0f) - (size_x / 2.0f),
+			    ([[NSScreen mainScreen] frame].size.height / 2.0f) - (size_y / 2.0f));
+  NSRect windowRect = NSMakeRect(pos.x, pos.y, size_x, size_y);
   str = [NSString stringWithCString:title encoding:NSASCIIStringEncoding];
   newwin->winid = [[MlxWin alloc] initWithRect:windowRect andTitle:str pfaAttrs:pfa_attrs];
   if (newwin->winid)
@@ -814,21 +836,15 @@ int     mlx_destroy_window(mlx_ptr_t *mlx_ptr, mlx_win_list_t *win_to_del)
   return (0);
 }
 
-int nx_mouse_set_cursor_association(int tf)
+int nx_mouse_set_cursor_association(mlx_win_list_t *win, int tf)
 {
-	CGAssociateMouseAndMouseCursorPosition(tf);
+	[(id)(win->winid) nx_mouse_set_cursor_association: tf];
 	return (true);
+	//CGAssociateMouseAndMouseCursorPosition(tf);
 }
 
-int nx_display_cursor(int tf)
+int nx_display_cursor(mlx_win_list_t *win, int tf)
 {
-	if (tf == true)
-	{
-		CGDisplayShowCursor(true);
-	}
-	else
-	{
-		CGDisplayHideCursor(false);
-	}
+	[(id)(win->winid) nx_display_cursor: tf];
 	return (true);
 }

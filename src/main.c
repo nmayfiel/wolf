@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 17:23:55 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/08/01 02:21:58 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/01 04:05:08 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,12 +204,13 @@ int				main(int argc, char **argv)
 	     exit(0);
 	win.initialized = 1;
 	print_welcome_msg();
-	nx_mouse_set_cursor_association(0);
-	nx_display_cursor(0);
+	nx_mouse_set_cursor_association(win.win, 0);
+	nx_display_cursor(win.win, 0);
 	mlx_hook(win.win, 2, 0, key_down, &win.keys);
 	mlx_hook(win.win, 3, 0, key_up, &win.keys);
 	mlx_hook(win.win, 4, 0, mouse_hook, &win);
-	mlx_hook(win.win, 6, 0, mouse_moved, &win);
+	mlx_mouse_moved_hook(win.win, mouse_moved, &win);
+//mlx_hook(win.win, 6, 0, mouse_moved, &win);
 	mlx_hook(win.win, 12, 0, expose_hook, &win);
 	mlx_hook(win.win, 17, 0, close_hook, &win);
 	mlx_loop_hook(win.mlx, main_loop, &win);

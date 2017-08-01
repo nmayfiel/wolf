@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/30 00:05:54 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/01 01:29:38 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ typedef struct		s_mouse
 	int32_t		click1;
 	int32_t		click2;
 	t_double2	location;
+	t_double2	diff;
 }				t_mouse;
 
 typedef struct		s_tx_sample

@@ -6,6 +6,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+float		clamp_degrees_f(float angle)
+{
+	float new_angle;
+
+	new_angle = angle;
+	if (new_angle >= 180)
+		new_angle = -180.0 + (new_angle - 180.0);
+	if (new_angle < -180.0)
+		new_angle = 180.0 + (new_angle + 180.0);
+	return (new_angle);
+}
+
 void put_minimap_to_image(t_image *img, t_level *level, t_mods *mods)
 {
      int32_t width;
@@ -51,16 +63,15 @@ void update_player(t_mods *mods, t_mouse mouse, double time)
 
 	vel = mods->player_velocity;
 	vel2 = mods->player_strafe_velocity;
-//	mods->player_angle += mods->player_rotation_factor * (time * 60);
-	mods->player_angle += (mouse.diff.x) * (time * 60) /* * 4.0 * (time * 60)*/;
-	//mods->player_angle += mouse.location.x * 4.0 * (time * 60);
+	mods->player_angle += (mouse.diff.x * 0.25) * (time * 60);
 	x = vel * sin((float)mods->player_angle * M_PI / 180.0);
 	y = vel * cos((float)mods->player_angle * M_PI / 180.0);
 	x += vel2 * sin(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
 	y += vel2 * cos(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
 	mods->player_position_in_tile.x += x * (time * 60);
 	mods->player_position_in_tile.y += y * (time * 60);
-	mods->look_angle += mods->look_offset;
+	mods->look_angle -= (mouse.diff.y) * (time * 60);
+//	mods->look_angle += mods->look_offset;
 	//mods->height_multiplier += (float)mods->look_offset / 100.0;
 }
 
@@ -153,16 +164,16 @@ void manipulate_vertical_image(int32_t ***buffer, uint32_t size)
 void	render_title(t_window *win)
 {
      mlx_clear_window(win->mlx, win->win);
-     clear_image(&win->disp, 0x00FFFFFF);
+     clear_image(&win->assets.display_buffer, 0x00FFFFFF);
 
-     manipulate_vertical_image(&win->vertical_buffer, win->disp.size_in_pixels);
-     mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
-			     win->center.x - win->disp.center.x,
-			     win->center.y - win->disp.center.y);
+     manipulate_vertical_image(&win->assets.vertical_buffer, win->assets.display_buffer.size_in_pixels);
+     mlx_put_image_to_window(win->mlx, win->win, win->assets.display_buffer.ptr,
+			     win->center.x - win->assets.display_buffer.center.x,
+			     win->center.y - win->assets.display_buffer.center.y);
      
-     mlx_put_image_to_window(win->mlx, win->win, win->title_texture.ptr,
-			     win->center.x - win->title_texture.center.x,
-			     (win->center.y * 0.75) - win->title_texture.center.y);
+     mlx_put_image_to_window(win->mlx, win->win, win->assets.title_texture.ptr,
+			     win->center.x - win->assets.title_texture.center.x,
+			     (win->center.y * 0.75) - win->assets.title_texture.center.y);
      mlx_string_put(win->mlx,
 		    win->win,
 		    win->center.x - 35,
@@ -171,17 +182,6 @@ void	render_title(t_window *win)
 		    "[ENTER]");     
 }
 
-float		clamp_degrees_f(float angle)
-{
-	float new_angle;
-
-	new_angle = angle;
-	if (new_angle >= 180)
-		new_angle = -180.0 + (new_angle - 180.0);
-	if (new_angle < -180.0)
-		new_angle = 180.0 + (new_angle + 180.0);
-	return (new_angle);
-}
 
 
 int32_t mul_color(int32_t color, double multiplier)
@@ -237,8 +237,8 @@ void	raycasting(t_window *win, t_level *level, t_mods *mods)
 	int32_t place_in_texture_x;
 	int32_t new_place_in_texture_x;
 
-	sample_texture = (int32_t *)win->wall_texture.data;
-	buff = win->vertical_buffer;
+	sample_texture = (int32_t *)win->assets.wall_texture.data;
+	buff = win->assets.vertical_buffer;
 	row = mods->player_current_tile / level->size_x;
 	col = mods->player_current_tile % level->size_x;
 	max_x = level->size_x * 1024;
@@ -473,11 +473,11 @@ void	render_game(t_window *win)
 		perturb_y = cos(5 * M_PI * win->clock.time) * 4;
 	else
 		perturb_y = 0;
-	if (win->mods.should_fire && win->gun.shooting_anim == 0)
+	if (win->mods.should_fire && win->assets.gun.shooting_anim == 0)
 	{
-		win->gun.shooting_anim = 1;
-		win->gun.default_anim = 0;
-		win->gun.shooting_anim_time = win->clock.time;
+		win->assets.gun.shooting_anim = 1;
+		win->assets.gun.default_anim = 0;
+		win->assets.gun.shooting_anim_time = win->clock.time;
 	}
 	if (win->clock.time - time > 0.125)
 	{
@@ -486,46 +486,46 @@ void	render_game(t_window *win)
 		if (enemy_index > 7)
 			enemy_index = 0;
 	}
-	if (win->gun.default_anim)
+	if (win->assets.gun.default_anim)
 	{
-		if (win->clock.time - win->gun.default_start_time > win->gun.default_time_per_frame)
+		if (win->clock.time - win->assets.gun.default_start_time > win->assets.gun.default_time_per_frame)
 		{
 			++shotgun_index;
-			if (shotgun_index > win->gun.default_anim_end_frame)
-				shotgun_index = win->gun.default_anim_start_frame;
-			win->gun.default_start_time = win->clock.time;
+			if (shotgun_index > win->assets.gun.default_anim_end_frame)
+				shotgun_index = win->assets.gun.default_anim_start_frame;
+			win->assets.gun.default_start_time = win->clock.time;
 		}
 	}
-	else if (win->gun.shooting_anim)
+	else if (win->assets.gun.shooting_anim)
 	{
-		if (win->clock.time - win->gun.shooting_anim_time > win->gun.shooting_anim_time_per_frame)
+		if (win->clock.time - win->assets.gun.shooting_anim_time > win->assets.gun.shooting_anim_time_per_frame)
 		{
 			++shotgun_index;
-			if (shotgun_index > win->gun.shooting_anim_frame_end)
+			if (shotgun_index > win->assets.gun.shooting_anim_frame_end)
 			{
-				shotgun_index = win->gun.default_anim_start_frame;
-				win->gun.default_anim = 1;
-				win->gun.shooting_anim = 0;
+				shotgun_index = win->assets.gun.default_anim_start_frame;
+				win->assets.gun.default_anim = 1;
+				win->assets.gun.shooting_anim = 0;
 			}
-			win->gun.shooting_anim_time = win->clock.time;
+			win->assets.gun.shooting_anim_time = win->clock.time;
 		}
 	}
 	mlx_clear_window(win->mlx, win->win);
 	if (win->game_state & GS_NORME)
 	{
-		clear_image(&win->disp, 0x00000000);
-		clear_image(&win->minimap, 0xFF000000);
+		clear_image(&win->assets.display_buffer, 0x00000000);
+		clear_image(&win->assets.minimap, 0xFF000000);
 		update_player(&win->mods, win->mouse, win->clock.last_frame_time);
 		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
 //		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
-		draw_gun(shotgun_index, win->gun, &win->disp, &win->shotgun_texture, win->disp.center.x - 146, win->disp.height - 396 + perturb_y);
-		put_minimap_to_image(&win->minimap, &win->level, &win->mods);
+		draw_gun(shotgun_index, win->assets.gun, &win->assets.display_buffer, &win->assets.shotgun_texture, win->assets.display_buffer.center.x - 146, win->assets.display_buffer.height - 396 + perturb_y);
+		put_minimap_to_image(&win->assets.minimap, &win->level, &win->mods);
 	}
-	mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
-					win->center.x - win->disp.center.x,
-					win->center.y - win->disp.center.y);
-	mlx_put_image_to_window(win->mlx, win->win, win->minimap.ptr,
+	mlx_put_image_to_window(win->mlx, win->win, win->assets.display_buffer.ptr,
+					win->center.x - win->assets.display_buffer.center.x,
+					win->center.y - win->assets.display_buffer.center.y);
+	mlx_put_image_to_window(win->mlx, win->win, win->assets.minimap.ptr,
 				10,
 				10);
 	//mlx_put_image_to_window(win->mlx, win->win, win->shotgun_texture.ptr,

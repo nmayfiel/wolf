@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/08/01 03:10:54 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/02 02:51:48 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,8 @@ typedef struct		s_mods
 	float		vertical_velocity;
 	float		height_multiplier;
 	int32_t		player_rotation_factor;
-	int32_t		player_angle;
+	float		target_player_angle;
+	float		player_angle;
 	//t_double2	click;
 	//t_double2	mouse;
 	int32_t		update;
@@ -185,12 +186,9 @@ typedef struct		s_clock
 	uint64_t	last_update;
 }				t_clock;
 
-typedef struct		s_window
+typedef struct s_assets
 {
-	void		*mlx;
-	void		*win;
-	t_clock		clock;
-	t_image		disp;
+	t_image		display_buffer;
 	int32_t		**vertical_buffer;
 	t_image		splash;
 	t_image		splash_mask;
@@ -200,11 +198,20 @@ typedef struct		s_window
 	t_image		shotgun_texture;
 	t_image		minimap;
 	t_gun 		gun;
+} t_assets;
+
+typedef struct		s_window
+{
+	void		*mlx;
+	void		*win;
+	t_clock		clock;
+	t_assets assets;
 	t_point		center;
 	t_keys		keys;
 	t_mouse		mouse;
 	t_mods		mods;
-	int			initialized;
+
+	int			is_initialized;
 	int32_t		opts;
 	t_level		level;
 	uint32_t	game_state;

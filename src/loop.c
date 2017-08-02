@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/14 21:01:02 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/08/01 04:04:08 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/02 02:52:17 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,21 +71,7 @@ void	reset_input(t_keys *keys, t_mouse *mouse)
 	mouse->diff.x = 0.0;
 	mouse->diff.y = 0.0;
 }
-/*
-void			update_time(t_window *win)
-{
-     uint64_t current_time;
 
-     if (win->game_state != GS_PAUSE)
-     {
-	     current_time = mach_absolute_time();
-	     win->frame_time = seconds_per_frame(win->last_update, current_time);
-	     if (win->frame_time < 1.0)
-		     win->time += win->frame_time;
-	     win->last_update = current_time;
-     }
-}
-*/
 void			update_clock(t_clock *clock)
 {
 	uint64_t current_time;
@@ -123,16 +109,12 @@ static void		handle_input(t_window *win)
 			*state = GS_NORME;
 			nx_mouse_set_cursor_association(win->win, 0);
 			nx_display_cursor(win->win, 0);
-			//CGAssociateMouseAndMouseCursorPosition(true);
-			//CGDisplayShowCursor(true);
 		}
 		else if (*state & GS_NORME)
 		{
 			*state = GS_PAUSE;
 			nx_mouse_set_cursor_association(win->win, 1);
 			nx_display_cursor(win->win, 1);
-//CGAssociateMouseAndMouseCursorPosition(false);
-			//CGDisplayHideCursor(true);
 		}
 		mods->update = 1;
 	}
@@ -185,7 +167,7 @@ static void		handle_input(t_window *win)
 		mods->should_fire = 1;
 	else
 		mods->should_fire = 0;
-	
+
 	mods->player_angle = clamp_degrees_f(mods->player_angle);
 	mods->update |= keys->up.ended_down
 		| keys->down.ended_down
@@ -218,9 +200,9 @@ int32_t			main_loop(t_window *win)
 
 	update_clock(&win->clock);
 	handle_input(win);
-	if (win->gun.shooting_anim)
+	if (win->assets.gun.shooting_anim)
 		needs_render = 1;
-	if (win->initialized == 1)
+	if (win->is_initialized == 1)
 	{
 		if (win->game_state & GS_SPLASH)
 			//render_splash(win);

@@ -210,7 +210,7 @@ int get_mouse_button(NSEventType eventtype)
   thepoint.x = [theEvent deltaX];
   thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
-	  event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
+	  event_funct[6]((int)(thepoint.x), (int)(thepoint.y), event_param[6]);
 }
 
 
@@ -222,7 +222,7 @@ int get_mouse_button(NSEventType eventtype)
   thepoint.x = [theEvent deltaX];
   thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
-	  event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
+	  event_funct[6]((int)(thepoint.x), (int)(thepoint.y), event_param[6]);
 }
 
 
@@ -234,7 +234,7 @@ int get_mouse_button(NSEventType eventtype)
   thepoint.x = [theEvent deltaX];
   thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
-	  event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
+	  event_funct[6]((int)(thepoint.x), (int)(thepoint.y), event_param[6]);
 }
 
 
@@ -246,7 +246,7 @@ int get_mouse_button(NSEventType eventtype)
   thepoint.x = [theEvent deltaX];
   thepoint.y = [theEvent deltaY];
   if (event_funct[6] != NULL)
-	  event_funct[6]((int)(thepoint.x), size_y - 1 - (int)(thepoint.y), event_param[6]);
+	  event_funct[6]((int)(thepoint.x), (int)(thepoint.y), event_param[6]);
 }
 
 

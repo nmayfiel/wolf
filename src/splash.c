@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/03/21 09:15:26 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/26 17:27:13 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/02 02:48:55 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,30 +27,30 @@ void		render_splash(t_window *win)
 	
 	i = 0;
 	mlx_clear_window(win->mlx, win->win);
-	clear_image(&win->disp, 0x00FFFFFF);
-	clear_image(&win->splash_mask, 0x00FFFFFF);
-	mlx_put_image_to_window(win->mlx, win->win, win->disp.ptr,
-				win->center.x - win->disp.center.x,
-				win->center.y - win->disp.center.y);
+	clear_image(&win->assets.display_buffer, 0x00FFFFFF);
+	clear_image(&win->assets.splash_mask, 0x00FFFFFF);
+	mlx_put_image_to_window(win->mlx, win->win, win->assets.display_buffer.ptr,
+				win->center.x - win->assets.display_buffer.center.x,
+				win->center.y - win->assets.display_buffer.center.y);
 	time = win->clock.time;
 	if (time >= 2 && time < 5.5)
 	{
-		splash = (uint32_t *)win->splash.data;
-		while (i < win->splash.size_line / sizeof(int32_t) * win->splash.height)
+		splash = (uint32_t *)win->assets.splash.data;
+		while (i < win->assets.splash.size_line / sizeof(int32_t) * win->assets.splash.height)
 		{
-			uv.x = (i % win->splash.width) / (float)win->splash.width;
-			uv.y = (i / win->splash.width) / (float)win->splash.height;
+			uv.x = (i % win->assets.splash.width) / (float)win->assets.splash.width;
+			uv.y = (i / win->assets.splash.width) / (float)win->assets.splash.height;
 			splash[i] = (uint8_t)ABS((int)(sin(time) * 255)) |
 				((uint8_t)(uv.y * 255) << 8) |
 				((uint8_t)(uv.x * 255) << 16) |
 				(splash[i] & 0xFF000000);
 			++i;
 		}
-		mlx_put_image_to_window(win->mlx, win->win, win->splash.ptr,
-					win->center.x - win->splash.center.x,
-					win->center.y - win->splash.center.y);
+		mlx_put_image_to_window(win->mlx, win->win, win->assets.splash.ptr,
+					win->center.x - win->assets.splash.center.x,
+					win->center.y - win->assets.splash.center.y);
 		i = 0;
-		mask = (uint32_t *)win->splash_mask.data;
+		mask = (uint32_t *)win->assets.splash_mask.data;
 		if (time < 4.5)
 		{
 			time -= 2.0;
@@ -67,15 +67,15 @@ void		render_splash(t_window *win)
 			else
 				time = 1.0 - time;
 		}
-		while (i < win->splash_mask.size_line / sizeof(int32_t) * win->splash_mask.height)
+		while (i < win->assets.splash_mask.size_line / sizeof(int32_t) * win->assets.splash_mask.height)
 		{
 			mask[i] = 0x00FFFFFF | ((uint8_t)(time * 255) << 24);
 			++i;
 		}
 		
-		mlx_put_image_to_window(win->mlx, win->win, win->splash_mask.ptr,
-					win->center.x - win->splash_mask.center.x,
-					win->center.y - win->splash_mask.center.y);
+		mlx_put_image_to_window(win->mlx, win->win, win->assets.splash_mask.ptr,
+					win->center.x - win->assets.splash_mask.center.x,
+					win->center.y - win->assets.splash_mask.center.y);
 	}
 	else if (time >= 5.5)
 	{

@@ -6,15 +6,13 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/06/27 00:03:38 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/10 00:06:00 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <libft.h>
 #include "wolf.h"
 #include <Carbon/Carbon.h>
-
-#include <stdio.h>
 
 /*
 ** enum {
@@ -99,28 +97,18 @@ int32_t		key_down(int32_t kc, t_keys *keys)
 	is_down = 1;
 	if (kc == kVK_Escape)
 		change_key_state(&keys->close, is_down);
-	if (kc == kVK_ANSI_W)
+	if (kc == kVK_ANSI_W || kc == kVK_UpArrow)
 		change_key_state(&keys->up, is_down);
-	if (kc == kVK_ANSI_S)
+	if (kc == kVK_ANSI_S || kc == kVK_DownArrow)
 		change_key_state(&keys->down, is_down);
-	if (kc == kVK_LeftArrow)
-		change_key_state(&keys->left, is_down);
-	if (kc == kVK_RightArrow)
-		change_key_state(&keys->right, is_down);
 	if (kc == kVK_Return)
 		change_key_state(&keys->enter, is_down);
 	if (kc == kVK_ANSI_P)
 		change_key_state(&keys->pause, is_down);
-	if (kc == kVK_ANSI_A)
+	if (kc == kVK_ANSI_A || kc == kVK_LeftArrow)
 		change_key_state(&keys->left_alt, is_down);
-	if (kc == kVK_ANSI_D)
+	if (kc == kVK_ANSI_D || kc == kVK_RightArrow)
 		change_key_state(&keys->right_alt, is_down);
-//	if (kc == kVK_Space)
-//		change_key_state(&keys->fire, is_down);
-	if (kc == kVK_UpArrow)
-		change_key_state(&keys->up_arrow, is_down);
-	if (kc == kVK_DownArrow)
-		change_key_state(&keys->down_arrow, is_down);
 	return (0);
 }
 
@@ -131,27 +119,17 @@ int32_t		key_up(int32_t kc, t_keys *keys)
 	is_down = 0;
 	if (kc == kVK_Escape)
 		change_key_state(&keys->close, is_down);
-	if (kc == kVK_ANSI_W)
+	if (kc == kVK_ANSI_W || kc == kVK_UpArrow)
 		change_key_state(&keys->up, is_down);
-	if (kc == kVK_ANSI_S)
+	if (kc == kVK_ANSI_S || kc == kVK_DownArrow)
 		change_key_state(&keys->down, is_down);
-	if (kc == kVK_LeftArrow)
-		change_key_state(&keys->left, is_down);
-	if (kc == kVK_RightArrow)
-		change_key_state(&keys->right, is_down);
 	if (kc == kVK_Return)
 		change_key_state(&keys->enter, is_down);
 	if (kc == kVK_ANSI_P)
 		change_key_state(&keys->pause, is_down);
-	if (kc == kVK_ANSI_A)
+	if (kc == kVK_ANSI_A || kc == kVK_LeftArrow)
 		change_key_state(&keys->left_alt, is_down);
-	if (kc == kVK_ANSI_D)
+	if (kc == kVK_ANSI_D || kc == kVK_RightArrow)
 		change_key_state(&keys->right_alt, is_down);
-//	if (kc == kVK_Space)
-//		change_key_state(&keys->fire, is_down);
-	if (kc == kVK_UpArrow)
-		change_key_state(&keys->up_arrow, is_down);
-	if (kc == kVK_DownArrow)
-		change_key_state(&keys->down_arrow, is_down);
 	return (0);
 }

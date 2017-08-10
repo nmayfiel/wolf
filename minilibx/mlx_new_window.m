@@ -294,27 +294,46 @@ int get_mouse_button(NSEventType eventtype)
 	
 //	int x = contentRect.size.width;
 //	int y = contentRect.size.height;
-//	if (event_funct[18] != NULL)
-//		event_funct[18](x, y, event_param[18]);
+	if (event_funct[18] != NULL)
+		event_funct[18](event_param[18]);
 	return (frameSize);
 }
 // end added
 
+- (void) exitFullScreenNotification:(NSNotification *)note
+{
+	if (event_funct[18] != NULL)
+		event_funct[18](event_param[18]);
+}
+
 - (void) exposeNotification:(NSNotification *)note
 {
     if (event_funct[12] != NULL)
-      event_funct[12](event_param[12]);
+	    event_funct[12](2, event_param[12]);
+}
+
+- (void) resignedKeyNotification:(NSNotification *)note
+{
+	if (event_funct[12] != NULL)
+		event_funct[12](0, event_param[12]);
+}
+
+- (void) miniaturizeNotification:(NSNotification *)note
+{
+	if (event_funct[12] != NULL)
+		event_funct[12](1, event_param[12]);
 }
 
 - (void) closeNotification:(NSNotification *)note
 {
-  if (event_funct[17] != NULL)
-    event_funct[17](event_param[17]);
+	if (event_funct[17] != NULL)
+		event_funct[17](event_param[17]);
 }
 
 - (void) deminiaturizeNotification:(NSNotification *)note
 {
-  [self exposeNotification:note];
+    if (event_funct[12] != NULL)
+	    event_funct[12](3, event_param[12]);
 }
 @end
 
@@ -347,8 +366,10 @@ int get_mouse_button(NSEventType eventtype)
       [self prepareOpenGL];
 
       [self setNextKeyView:self];
-
+      [[NSNotificationCenter defaultCenter] addObserver:win selector:@selector(exitFullScreenNotification:) name:@"NSWindowDidExitFullScreenNotification" object:win];
       [[NSNotificationCenter defaultCenter] addObserver:win selector:@selector(exposeNotification:) name:@"NSWindowDidBecomeKeyNotification" object:win];
+      [[NSNotificationCenter defaultCenter] addObserver:win selector:@selector(miniaturizeNotification:) name:@"NSWindowWillMiniaturizeNotification" object:win];
+      [[NSNotificationCenter defaultCenter] addObserver:win selector:@selector(resignedKeyNotification:) name:@"NSWindowDidResignKeyNotification" object:win];
       [[NSNotificationCenter defaultCenter] addObserver:win selector:@selector(deminiaturizeNotification:) name:@"NSWindowDidDeminiaturizeNotification" object:win];
       [[NSNotificationCenter defaultCenter] addObserver:win selector:@selector(closeNotification:) name:@"NSWindowWillCloseNotification" object:win];
 
@@ -633,11 +654,11 @@ int get_mouse_button(NSEventType eventtype)
 
 - (void) drawRect: (NSRect)bounds
 {
+
 	if ([self inLiveResize])
 	{
 		glClearColor(0.0, 0.5, 0.5, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
-		//	[self mlx_gl_draw];
 		glFlush();
 	}
 //[self flushGLContext];

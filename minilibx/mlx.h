@@ -129,7 +129,7 @@ int	mlx_resize_hook(void *win_ptr, int (*funct_ptr)(), void *param);
 /*
 **  hook funct are called as follow :
 **
-**   expose_hook(void *param);
+**   expose_hook(int code, void *param);
 **   key_hook(int keycode, void *param);
 **   mouse_hook(int button, int x,int y, void *param);
 **   loop_hook(void *param);

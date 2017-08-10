@@ -61,6 +61,7 @@ void update_player(t_mods *mods, t_mouse mouse, double time)
 	float vel;
 	float vel2;
 
+	mods->player_angle = clamp_degrees_f(mods->player_angle);
 	vel = mods->player_velocity;
 	vel2 = mods->player_strafe_velocity;
 	mods->player_angle += (mouse.diff.x * 0.25) * (time * 60);
@@ -71,6 +72,7 @@ void update_player(t_mods *mods, t_mouse mouse, double time)
 	mods->player_position_in_tile.x += x * (time * 60);
 	mods->player_position_in_tile.y += y * (time * 60);
 	mods->look_angle -= (mouse.diff.y) * (time * 60);
+
 //	mods->look_angle += mods->look_offset;
 	//mods->height_multiplier += (float)mods->look_offset / 100.0;
 }

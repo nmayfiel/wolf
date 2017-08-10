@@ -6,7 +6,7 @@
 /*   By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/13 18:00:47 by nmayfiel          #+#    #+#             */
-/*   Updated: 2017/08/02 02:51:48 by nmayfiel         ###   ########.fr       */
+/*   Updated: 2017/08/10 02:33:14 by nmayfiel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,13 +66,10 @@ typedef struct		s_keys
 	t_key	down;
 	t_key	up_arrow;
 	t_key	down_arrow;
-	t_key	left;
-	t_key	right;
 	t_key	left_alt;
 	t_key	right_alt;
 	t_key	enter;
 	t_key	pause;
-//	t_key   fire;
 }			t_keys;
 
 typedef struct		s_mouse
@@ -244,5 +241,12 @@ void				exit_error(int32_t error_code);
 
 int32_t				clamp_degrees(int32_t angle);
 float				clamp_degrees_f(float angle);
+
+t_image				get_image_of_size(void *mlx, uint32_t width, uint32_t height);
+t_image				get_texture(void *mlx, char *fn);
+int32_t				**get_vertical_image_buffer_map(t_image *image);
+
+
+
 
 #endif

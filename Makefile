@@ -6,7 +6,7 @@
 #    By: nmayfiel <nmayfiel@student.42.us.org>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/05/09 01:59:55 by nmayfiel          #+#    #+#              #
-#    Updated: 2017/05/09 02:27:02 by nmayfiel         ###   ########.fr        #
+#    Updated: 2017/08/10 00:27:37 by nmayfiel         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,8 +17,8 @@ LDFLAGS = -Llibft/ -Lminilibx
 LDLIBS = -lft -lmlx -framework OpenGL -framework AppKit
 CFLAGS += -Iinclude/ -Ilibft/include/ -Iminilibx
 
-FILENAMES = main.c draw.c loop.c render.c splash.c parse_options.c \
-		errors.c colors.c read_level_map.c keys.c mouse.c
+FILENAMES = main.c draw.c loop.c render.c splash.c images.c \
+		errors.c read_level_map.c keys.c mouse.c
 FNS = $(addprefix src/, $(FILENAMES))
 OBJECTS = $(addprefix build/, $(FILENAMES:.c=.o))
 

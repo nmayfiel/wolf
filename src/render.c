@@ -6,18 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-float		clamp_degrees_f(float angle)
-{
-	float new_angle;
-
-	new_angle = angle;
-	if (new_angle >= 180)
-		new_angle = -180.0 + (new_angle - 180.0);
-	if (new_angle < -180.0)
-		new_angle = 180.0 + (new_angle + 180.0);
-	return (new_angle);
-}
-
 void put_minimap_to_image(t_image *img, t_level *level, t_mods *mods)
 {
      int32_t width;
@@ -28,8 +16,6 @@ void put_minimap_to_image(t_image *img, t_level *level, t_mods *mods)
 
      height = 10;
      width = 10;
-     x = 0;
-     y = 0;
      x = ((-(mods->player_current_tile % level->size_x)) * width) + img->width / 2;
      y = ((-(mods->player_current_tile / level->size_x)) * height) + img->height / 2;
      i = 0;
@@ -49,99 +35,7 @@ void put_minimap_to_image(t_image *img, t_level *level, t_mods *mods)
      }
 }
 
-/*
-** radians = degrees * M_PI / 180.0;
-** degrees = radians * 180.0 / M_PI;
-*/
 
-void update_player(t_mods *mods, t_mouse mouse, double time)
-{
-	float x;
-	float y;
-	float vel;
-	float vel2;
-
-	mods->player_angle = clamp_degrees_f(mods->player_angle);
-	vel = mods->player_velocity;
-	vel2 = mods->player_strafe_velocity;
-	mods->player_angle += (mouse.diff.x * 0.25) * (time * 60);
-	x = vel * sin((float)mods->player_angle * M_PI / 180.0);
-	y = vel * cos((float)mods->player_angle * M_PI / 180.0);
-	x += vel2 * sin(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
-	y += vel2 * cos(clamp_degrees((float)mods->player_angle - 90) * M_PI / 180.0);
-	mods->player_position_in_tile.x += x * (time * 60);
-	mods->player_position_in_tile.y += y * (time * 60);
-	mods->look_angle -= (mouse.diff.y) * (time * 60);
-
-//	mods->look_angle += mods->look_offset;
-	//mods->height_multiplier += (float)mods->look_offset / 100.0;
-}
-
-void check_collision(t_level *level, t_mods *mods)
-{
-     
-     if (mods->player_position_in_tile.x > 1023)
-     {
-	  if (mods->player_current_tile + 1 < level->size)
-	  {
-	       if ((level->map[mods->player_current_tile + 1] & MAP_WALL) == 0)
-	       {
-		    mods->player_current_tile += 1;
-		    mods->player_position_in_tile.x -= 1023;
-	       }
-	       else
-		    mods->player_position_in_tile.x = 1010;
-	  }
-	  else
-	  {
-	       mods->player_position_in_tile.x = 1010;
-	  }
-     }
-     else if (mods->player_position_in_tile.x < 0)
-     {
-	  if (mods->player_current_tile - 1 > 0)
-	  {
-	       if ((level->map[mods->player_current_tile - 1] & MAP_WALL) == 0)
-	       {
-		    mods->player_current_tile -= 1;
-		    mods->player_position_in_tile.x += 1023;
-	       }
-	       else
-		    mods->player_position_in_tile.x = 9;
-	  }
-	  else
-	  {
-	       mods->player_position_in_tile.x = 9;
-	  }    
-     }
-     if (mods->player_position_in_tile.y > 1023)
-     {
-	  if (mods->player_current_tile - level->size_x > 0)
-	       if ((level->map[mods->player_current_tile - level->size_x] & MAP_WALL) == 0)
-	       {
-		    mods->player_current_tile -= level->size_x;
-		    mods->player_position_in_tile.y -= 1023;
-	       }
-	       else
-		    mods->player_position_in_tile.y = 1010;
-	  else
-	       mods->player_position_in_tile.y = 1010;
-	  
-     }
-     else if (mods->player_position_in_tile.y < 0)
-     {
-	  if (mods->player_current_tile + level->size_x < level->size)
-	       if ((level->map[mods->player_current_tile + level->size_x] & MAP_WALL) == 0)
-	       {
-		    mods->player_current_tile += level->size_x;
-		    mods->player_position_in_tile.y += 1023;
-	       }
-	       else
-		    mods->player_position_in_tile.y = 10;
-	  else
-	       mods->player_position_in_tile.y = 10;
-     }
-}
 
 void manipulate_vertical_image(int32_t ***buffer, uint32_t size)
 {
@@ -197,13 +91,6 @@ int32_t mul_color(int32_t color, double multiplier)
 	b = ((color & 0x00FF0000) >> 16) * multiplier;
 	return (r | (g << 8) | (b << 16));
 }
-
-
-// ENEMIES:
-// Can you see him?
-// Draw a line that is the size of the enemy, raycast against it
-// So instead of following the lines of the tile map, follow a new line that is perpendicular to your view,
-// raycast for all of the walls, then enemies
 
 void	raycasting(t_window *win, t_level *level, t_mods *mods)
 {
@@ -456,72 +343,15 @@ void draw_gun(int32_t shotgun_index, t_gun gun, t_image *img, t_image *src, int3
 	}
 }
 
-// ENEMY:
-// can we see him?
-// is there a wall between us and them?
-
-// the distance between you and the enemy is known, therefore, the size of the enemy is known.
-
-// calculate the size of the horizontal size of the enemy, then raycast against that
-
 void	render_game(t_window *win)
 {
-	static int32_t enemy_index = 0;
-	static double time = 0;
-	static int32_t shotgun_index = 0;
-	int32_t perturb_y;
-
-	if (win->mods.player_velocity != 0 || win->mods.player_strafe_velocity != 0)
-		perturb_y = cos(5 * M_PI * win->clock.time) * 4;
-	else
-		perturb_y = 0;
-	if (win->mods.should_fire && win->assets.gun.shooting_anim == 0)
-	{
-		win->assets.gun.shooting_anim = 1;
-		win->assets.gun.default_anim = 0;
-		win->assets.gun.shooting_anim_time = win->clock.time;
-	}
-	if (win->clock.time - time > 0.125)
-	{
-		++enemy_index;
-		time = win->clock.time;
-		if (enemy_index > 7)
-			enemy_index = 0;
-	}
-	if (win->assets.gun.default_anim)
-	{
-		if (win->clock.time - win->assets.gun.default_start_time > win->assets.gun.default_time_per_frame)
-		{
-			++shotgun_index;
-			if (shotgun_index > win->assets.gun.default_anim_end_frame)
-				shotgun_index = win->assets.gun.default_anim_start_frame;
-			win->assets.gun.default_start_time = win->clock.time;
-		}
-	}
-	else if (win->assets.gun.shooting_anim)
-	{
-		if (win->clock.time - win->assets.gun.shooting_anim_time > win->assets.gun.shooting_anim_time_per_frame)
-		{
-			++shotgun_index;
-			if (shotgun_index > win->assets.gun.shooting_anim_frame_end)
-			{
-				shotgun_index = win->assets.gun.default_anim_start_frame;
-				win->assets.gun.default_anim = 1;
-				win->assets.gun.shooting_anim = 0;
-			}
-			win->assets.gun.shooting_anim_time = win->clock.time;
-		}
-	}
 	mlx_clear_window(win->mlx, win->win);
 	if (win->game_state & GS_NORME)
 	{
 		clear_image(&win->assets.display_buffer, 0x00000000);
 		clear_image(&win->assets.minimap, 0xFF000000);
-		update_player(&win->mods, win->mouse, win->clock.last_frame_time);
-		check_collision(&win->level, &win->mods);
 		raycasting(win, &win->level, &win->mods);
-//		draw_enemy_at_point(enemy_index, &win->disp, &win->enemy_texture, win->disp.center.x - 150, win->disp.center.y - 150);
-		draw_gun(shotgun_index, win->assets.gun, &win->assets.display_buffer, &win->assets.shotgun_texture, win->assets.display_buffer.center.x - 146, win->assets.display_buffer.height - 396 + perturb_y);
+		draw_gun(win->assets.gun.current_sprite, win->assets.gun, &win->assets.display_buffer, &win->assets.shotgun_texture, win->assets.display_buffer.center.x - 146, win->assets.display_buffer.height - 396 + win->assets.gun.perturb_y);
 		put_minimap_to_image(&win->assets.minimap, &win->level, &win->mods);
 	}
 	mlx_put_image_to_window(win->mlx, win->win, win->assets.display_buffer.ptr,
@@ -530,9 +360,6 @@ void	render_game(t_window *win)
 	mlx_put_image_to_window(win->mlx, win->win, win->assets.minimap.ptr,
 				10,
 				10);
-	//mlx_put_image_to_window(win->mlx, win->win, win->shotgun_texture.ptr,
-	//			win->center.x - win->shotgun_texture.center.x,
-	//			win->center.y - win->shotgun_texture.center.y);
 	if (win->game_state & GS_PAUSE)
 		mlx_string_put(win->mlx,
 			       win->win,

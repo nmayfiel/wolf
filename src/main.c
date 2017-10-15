@@ -76,11 +76,8 @@ void				setup_shotgun_sample(t_gun *gun)
 		gun->sample_data[i] = (t_tx_sample){0, 0, 1, 1, 96, 96};
 		++i;
 	}
-	gun->default_anim = 1;
-	gun->default_anim_start_frame = 0;
-	gun->default_anim_end_frame = 0;
-	gun->default_time_per_frame = 0;
-	gun->default_start_time = 0;
+	gun->current_sprite = 0;
+	gun->default_sprite = 0;
 	gun->shooting_anim = 0;
 	gun->shooting_anim_time = 0;
 	gun->shooting_anim_time_per_frame = 0.08;
@@ -107,9 +104,6 @@ static void			init_assets(void *mlx, t_assets *assets)
 	file_path = ft_strdup("assets/brick_wall.png");
 	assets->wall_texture = get_texture(mlx, file_path);
 	free(file_path);
-	file_path = ft_strdup("assets/cacodemon.png");
-	assets->enemy_texture = get_texture(mlx, file_path);
-	free(file_path);
 	file_path = ft_strdup("assets/shotgun.png");
 	assets->shotgun_texture = get_texture(mlx, file_path);
 	free(file_path);
@@ -133,15 +127,17 @@ static void			init_window(t_window *win)
 	};
 	win->is_initialized = 0;
 	win->mods = (t_mods){0, {612, 612}, 0, 0, 0, 0, 0, 1.0,
-		0, 0, 0, 0, 0, {0, {612, 612}, 0, 0, 0, 0}};
+		0, 0, 0, 0, 0};
 	win->game_state = GS_SPLASH;
 	init_assets(win->mlx, &win->assets);
 }
 
-int					main(void)
+int					main(int argc, char **argv)
 {
 	t_window	win;
 
+	if (argc != 1)
+		print_usage(argv[0]);
 	init_window(&win);
 	if (read_level_map("assets/map.wolf", &win.level, &win.mods) != 1)
 		exit(0);

@@ -1,4 +1,11 @@
 # wolf
-42 Wolf3D: A 3D Graphics Project
+A Wolfenstein3D Raycasting Game
 
-Recreate Wolfenstein 3D using the minimalist graphics library minilibx, requires use of raycasting.
+## Getting Started
+```
+cd /path/to/wolf/ && make
+./wolf
+```
+
+## Description
+Recreate Wolfenstein3D using the graphics library MiniLibX, using the raycasting method.

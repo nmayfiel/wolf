@@ -1,7 +1,8 @@
 # wolf
-A Wolfenstein3D Raycasting Game
+A Wolfenstein3D Raycasting Demonstration
 
 ## Getting Started
+### MacOS
 ```
 cd /path/to/wolf/ && make
 ./wolf
